@@ -23,6 +23,7 @@
     "@uidotdev/usehooks": "^2.4.1",
     "@zk-kit/artifacts": "^2.0.1",
     "dotenv": "^16.4.5",
+    "ethers": "^6.14.0",
     "javascript-time-ago": "^2.5.11",
     "next": "14.2.11",
     "noir-jwt": "0.4.5",
