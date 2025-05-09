@@ -8,7 +8,6 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 import IonIcon from "@reacticons/ionicons";
 import { LocalStorageKeys } from "../lib/types";
 import { Providers } from "../lib/providers";
-import { WelcomeModal } from './welcome-modal';
 import logo from "@/assets/logo.png";
 
 
@@ -168,8 +167,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <div className="description">{children}</div>
         </main>
       </div>
-
-      <WelcomeModal />
     </>
   );
 };

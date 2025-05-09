@@ -8,6 +8,7 @@ import { generateKeyPairAndRegister, postClaim, postMessage } from "../lib/core"
 import { generateNameFromPubkey } from "../lib/utils";
 import { Providers } from "../lib/providers";
 import SignWithGoogleButton from "./siwg";
+import { Identity } from "@semaphore-protocol/identity";
 // import SignInWithMicrosoftButton from "./siwm";
 
 type ClaimFormProps = {
@@ -24,7 +25,7 @@ const prompts = (companyName: string) => [
 ];
 const randomPromptIndex = Math.floor(Math.random() * prompts("").length);
 
-const MessageForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
+const ClaimForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
   const [currentGroupId, setCurrentGroupId] = useLocalStorage<string | null>(
     "currentGroupId",
     null
@@ -62,9 +63,7 @@ const MessageForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
       setStatus(`Generating cryptographic proof of your membership without revealing your identity.
         This will take about 20 seconds...`);
 
-      const { anonGroup } = await generateKeyPairAndRegister(providerName);
-
-
+      const { anonGroup, semaphoreIdentity } = await generateKeyPairAndRegister(providerName);
 
       setCurrentGroupId(anonGroup.id);
       setCurrentProvider(providerName);
@@ -130,11 +129,12 @@ const MessageForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={100}
+          placeholder={"Claim title"}
           disabled={isTextAreaDisabled}
         />
         {!isTextAreaDisabled && title.length > 0 && (
           <span className="message-form-character-count">
-            {description.length}/100
+            {title.length}/100
           </span>
         )}
       </div>
@@ -142,7 +142,7 @@ const MessageForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder={randomPrompt}
+          placeholder={"Claim description"}
           maxLength={280}
           disabled={isTextAreaDisabled}
         />
@@ -157,6 +157,7 @@ const MessageForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
           value={sourceUrl}
           onChange={(e) => setSourceUrl(e.target.value)}
           maxLength={280}
+          placeholder={"Claim source url"}
           disabled={isTextAreaDisabled}
         />
         {!isTextAreaDisabled && sourceUrl.length > 0 && (
@@ -232,6 +233,6 @@ const MessageForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
   );
 };
 
-export default dynamic(() => Promise.resolve(MessageForm), {
+export default dynamic(() => Promise.resolve(ClaimForm), {
   ssr: false,
 });

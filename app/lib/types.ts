@@ -160,4 +160,5 @@ export const LocalStorageKeys = {
   GoogleOAuthNonce: "googleOAuthNonce",
   DarkMode: "darkMode",
   HasSeenWelcomeMessage: "hasSeenWelcomeMessage",
+  SemaphoreIdentity: "semaphoreIdentity"
 };

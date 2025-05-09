@@ -3,7 +3,7 @@ import { createClaim, createMembership, createMessage } from "./api";
 import { generateEphemeralKey, signMessage, verifyMessageSignature, signClaim, verifyClaimSignature } from "./ephemeral-key";
 import { initProver } from "./lazy-modules";
 import { Providers } from "./providers";
-import { createIdentity } from "./semaphore";
+import { createIdentity, saveIdentity } from "./semaphore";
 
 export async function generateKeyPairAndRegister(
   providerName: keyof typeof Providers
@@ -20,6 +20,7 @@ export async function generateKeyPairAndRegister(
 
   // create semaphore identity
   const semaphoreIdentity = await createIdentity(ephemeralKey.publicKey.toString())
+  saveIdentity(semaphoreIdentity);
 
   // Send proof to server to create an AnonGroup membership
   await createMembership({
@@ -33,7 +34,7 @@ export async function generateKeyPairAndRegister(
     role: "curator" // Default create as curator. Grant validator role by claiming role
   });
 
-  return { anonGroup, ephemeralPubkey: ephemeralKey.publicKey.toString(), proofArgs };
+  return { anonGroup, ephemeralPubkey: ephemeralKey.publicKey.toString(), proofArgs, semaphoreIdentity };
 }
 
 export async function postMessage(message: Message) {

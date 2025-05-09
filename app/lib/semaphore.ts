@@ -5,6 +5,7 @@ import { generateNoirProof } from "@semaphore-protocol/proof"
 import { verifyNoirProof } from "@semaphore-protocol/proof"
 import { SemaphoreSubgraph } from "@semaphore-protocol/data"
 import { SupportedNetwork } from "@semaphore-protocol/utils"
+import { LocalStorageKeys } from "./types"
 
 const reCreateGroup = async (idGroup:string,network:SupportedNetwork) => {
     const semaphoreSubgraph = new SemaphoreSubgraph(network)
@@ -21,9 +22,37 @@ export function createIdentity(pubKey: string) {
 }
 
 export async function addIdentityToCuratorsGroup(identity: Identity) {
-    const members = await reCreateGroup("0",'scroll-sepolia');
+    const SEMAPHORE_SUPPORTED_NETWORK = process.env.NEXT_PUBLIC_SEMAPHORE_SUPPORTED_NETWORK as SupportedNetwork || "scroll-sepolia";
+    const SEMAPHORE_CURATOR_GROUP_ID = process.env.NEXT_PUBLIC_SEMAPHORE_CURATOR_GROUP_ID || "0";
+    const SEMAPHORE_VALIDATOR_GROUP_ID = process.env.NEXT_PUBLIC_SEMAPHORE_VALIDATOR_GROUP_ID || "1"
+    const members = await reCreateGroup(SEMAPHORE_CURATOR_GROUP_ID, SEMAPHORE_SUPPORTED_NETWORK);
     const group = new Group(members);
     group.addMember(identity.commitment);
     const proof = await generateNoirProof(identity, group, "add member to curator group", group.root)
 }
 
+
+
+export function saveIdentity(identity: Identity) {
+    localStorage.setItem(LocalStorageKeys.SemaphoreIdentity, JSON.stringify({
+        privateKey: identity.privateKey,
+        secretScalar: identity.secretScalar.toString(),
+        publicKey: identity.publicKey.toString(),
+        commitment: identity.commitment.toString()
+    }));
+  }
+  
+export function loadIdentity() {
+    const identityString = localStorage.getItem(LocalStorageKeys.SemaphoreIdentity);
+    if (!identityString) {
+      return null;
+    }
+  
+    const identity = JSON.parse(identityString);
+    return {
+      privateKey: identity.privateKey,
+      publicKey: identity.publicKey,
+      secretScalar: BigInt(identity.secretScalar),
+      commitment: BigInt(identity.commitment)
+    } as Identity;
+  }
