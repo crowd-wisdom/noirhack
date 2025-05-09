@@ -1,4 +1,4 @@
-import { Message, SignedMessage, SignedMessageWithProof } from "./types";
+import { Message, SignedClaim, SignedMessage, SignedMessageWithProof } from "./types";
 import { getEphemeralPubkey } from "./ephemeral-key";
 
 export async function fetchMessages({
@@ -48,6 +48,47 @@ export async function fetchMessages({
   }));
 }
 
+export async function fetchClaims({
+  limit,
+  groupId,
+  isInternal,
+  beforeTimestamp,
+  afterTimestamp,
+}: {
+  limit: number;
+  isInternal?: boolean;
+  groupId?: string;
+  beforeTimestamp?: number | null;
+  afterTimestamp?: number | null;
+}) {
+  const url = new URL(window.location.origin + "/api/claims");
+
+  url.searchParams.set("limit", limit.toString());
+  if (groupId) url.searchParams.set("groupId", groupId);
+  if (isInternal) url.searchParams.set("isInternal", "true");
+  if (afterTimestamp) url.searchParams.set("afterTimestamp", afterTimestamp.toString());
+  if (beforeTimestamp) url.searchParams.set("beforeTimestamp", beforeTimestamp.toString());
+
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };  
+
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    throw new Error(`Call to /claims API failed: ${errorMessage}`);   
+  }
+
+  const claims = await response.json();
+  console.log("claims on api", claims)
+  return claims.map((claim: SignedClaim) => ({
+    ...claim,
+    //anonGroupId: claim.anon_gr
+    timestamp: new Date(claim.timestamp),
+  }));
+}
+
 export async function fetchMessage(
   id: string,
   isInternal: boolean = false
@@ -91,7 +132,9 @@ export async function createMembership({
   groupId,
   provider,
   proof,
-  proofArgs
+  proofArgs,
+  role,
+  semaphoreIdentityCommitment
 }: {
   ephemeralPubkey: string;
   ephemeralPubkeyExpiry: Date;
@@ -99,6 +142,8 @@ export async function createMembership({
   provider: string;
   proof: Uint8Array;
   proofArgs: object;
+  role: string;
+  semaphoreIdentityCommitment: string
 }) {
   const response = await fetch("/api/memberships", {
     method: "POST",
@@ -110,6 +155,8 @@ export async function createMembership({
       provider,
       proof: Array.from(proof),
       proofArgs,
+      role,
+      semaphoreIdentityCommitment
     }),
   });
 
@@ -140,7 +187,28 @@ export async function createMessage(signedMessage: SignedMessage) {
   }
 }
 
-export async function toggleLike(messageId: string, like: boolean) {
+export async function createClaim(signedClaim: SignedClaim) {
+  console.log(" on createclaim", signedClaim)
+  const response = await fetch("/api/claims", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      ...signedClaim,
+      ephemeralPubkey: signedClaim.ephemeralPubkey.toString(),
+      signature: signedClaim.signature.toString(),
+    }),
+  });
+
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    console.error(`Call to /claims API failed: ${errorMessage}`);
+    throw new Error("Call to /claims API failed");
+  }
+}
+
+export async function toggleLike(claimId: string, like: boolean) {
   try {
     const pubkey = getEphemeralPubkey();
 
@@ -151,7 +219,7 @@ export async function toggleLike(messageId: string, like: boolean) {
         Authorization: `Bearer ${pubkey}`,
       },
       body: JSON.stringify({
-        messageId,
+        claimId,
         like,
       }),
     });
@@ -168,4 +236,38 @@ export async function toggleLike(messageId: string, like: boolean) {
     console.error("Error toggling like:", error);
     throw error;
   }
+}
+
+export async function fetchClaim(claimId: string, isInternal: boolean) {
+  
+    const pubkey = getEphemeralPubkey();
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    if (isInternal) {
+      headers.Authorization = `Bearer ${pubkey}`;
+    }
+
+    const response = await fetch(`/api/claims/${claimId}`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error(`Call to /claims/${claimId} API failed: ${errorMessage}`);
+      throw new Error("Call to /claims API failed");
+    }
+
+    const claim = await response.json();
+    try {
+      claim.signature = BigInt(claim.signature);
+      claim.ephemeralPubkey = BigInt(claim.ephemeralPubkey);
+      claim.ephemeralPubkeyExpiry = new Date(claim.ephemeralPubkeyExpiry);
+      claim.timestamp = new Date(claim.timestamp);
+      claim.proof = Uint8Array.from(claim.proof);
+    } catch (error) {
+      console.warn("Error parsing claim:", error);
+    }
+    return claim;
 }

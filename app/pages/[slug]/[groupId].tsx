@@ -23,6 +23,7 @@ export default function GroupPage() {
   }
 
   const provider = ProviderSlugKeyMap[slug];
+  console.log("proviider in group id", slug, provider, groupId)
   const anonGroup = provider.getAnonGroup(groupId);
 
   return (

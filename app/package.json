@@ -1,5 +1,5 @@
 {
-  "name": "@stealthnote/ui",
+  "name": "@crowdwisdom/ui",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,12 +14,19 @@
     "@noble/hashes": "^1.7.1",
     "@noir-lang/noir_js": "^1.0.0-beta.3",
     "@reacticons/ionicons": "^7.1.0",
+    "@semaphore-protocol/data": "4.10.0",
+    "@semaphore-protocol/group": "4.9.1",
+    "@semaphore-protocol/identity": "4.9.1",
+    "@semaphore-protocol/proof": "file:./semaphore-protocol-proof-4.9.1.tgz",
+    "@semaphore-protocol/utils": "^4.10.0",
     "@supabase/supabase-js": "^2.45.4",
     "@uidotdev/usehooks": "^2.4.1",
+    "@zk-kit/artifacts": "^2.0.1",
     "dotenv": "^16.4.5",
     "javascript-time-ago": "^2.5.11",
     "next": "14.2.11",
     "noir-jwt": "0.4.5",
+    "poseidon-lite": "^0.3.0",
     "react": "^18",
     "react-dom": "^18",
     "twitter-api-v2": "^1.20.2",
@@ -50,5 +57,6 @@
       ]
     }
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "main": "index.js",
+  "license": "MIT"
 }

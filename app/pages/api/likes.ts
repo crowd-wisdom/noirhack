@@ -17,27 +17,27 @@ export default async function handler(
   if (req.method === "POST") {
     postLike(req, res);
   } else {
-    res.setHeader("Allow", ["GET", "POST"]);
+    res.setHeader("Allow", ["POST"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
 
 async function postLike(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { messageId, like } = req.body;
+    const { claimId, like } = req.body;
 
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       res
         .status(401)
-        .json({ error: "Authorization required for internal messages" });
+        .json({ error: "Authorization required for internal claims" });
       res.end();
       return;
     }
 
     const pubkey = authHeader.split(" ")[1];
 
-    if (!messageId || !pubkey) {
+    if (!claimId || !pubkey) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -52,11 +52,11 @@ async function postLike(req: NextApiRequest, res: NextApiResponse) {
       return res.status(400).json({ error: "Invalid pubkey" });
     }
 
-    // Check if message already liked
+    // Check if claim already liked
     const { data: existingLike } = await supabase
       .from("likes")
       .select()
-      .eq("message_id", messageId)
+      .eq("claim_id", claimId)
       .eq("pubkey", pubkey)
       .single();
 
@@ -64,11 +64,11 @@ async function postLike(req: NextApiRequest, res: NextApiResponse) {
       // Like
       await Promise.all([
         supabase.from("likes").insert({
-          message_id: messageId,
+          claim_id: claimId,
           pubkey,
         }),
         supabase.rpc("increment_likes_count", {
-          message_id: messageId,
+          claim_id: claimId,
         }),
       ]);
     }
@@ -79,10 +79,10 @@ async function postLike(req: NextApiRequest, res: NextApiResponse) {
         supabase
           .from("likes")
           .delete()
-          .eq("message_id", messageId)
+          .eq("claim_id", claimId)
           .eq("pubkey", pubkey),
         supabase.rpc("decrement_likes_count", {
-          message_id: messageId,
+          claim_id: claimId,
         }),
       ]);
     }

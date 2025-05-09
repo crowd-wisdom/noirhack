@@ -1,7 +1,7 @@
 import { Barretenberg, Fr } from "@aztec/bb.js";
 import * as ed25519 from '@noble/ed25519';
 import { sha512 } from '@noble/hashes/sha512';
-import { EphemeralKey, LocalStorageKeys, Message, SignedMessage } from "./types";
+import { Claim, EphemeralKey, LocalStorageKeys, Message, SignedClaim, SignedMessage } from "./types";
 import { bytesToBigInt, bigIntToBytes } from "./utils";
 
 ed25519.etc.sha512Sync = (...m) => sha512(ed25519.etc.concatBytes(...m));
@@ -105,6 +105,23 @@ export async function signMessage(message: Message) {
     signature: signatureBigInt,
   };
 }
+export async function signClaim(claim: Claim) {
+  const ephemeralKey = loadEphemeralKey();
+  if (!ephemeralKey) {
+    throw new Error("No ephemeralKey found");
+  }
+
+  const claimHash = await hashClaim(claim);
+
+  const signature = await ed25519.signAsync(claimHash, bigIntToBytes(ephemeralKey.privateKey, 32));
+  const signatureBigInt = bytesToBigInt(signature);
+console.log("signature on signclaim", signature)
+  return {
+    ephemeralPubkey: ephemeralKey.publicKey,
+    ephemeralPubkeyExpiry: ephemeralKey.expiry,
+    signature: signatureBigInt,
+  };
+}
 
 export async function verifyMessageSignature(message: SignedMessage) {
   const pubkey = bigIntToBytes(message.ephemeralPubkey, 32);
@@ -123,9 +140,34 @@ export async function verifyMessageSignature(message: SignedMessage) {
   return isValid;
 }
 
+export async function verifyClaimSignature(
+ claim: SignedClaim
+): Promise<boolean> {
+  const pubkey = bigIntToBytes(claim.ephemeralPubkey, 32);
+  const claimHash = await hashClaim(claim);
+
+  const isValid = await ed25519.verify(
+    bigIntToBytes(claim.signature, 64),
+    claimHash,
+    pubkey
+  );
+
+  if (!isValid) {
+    console.error("Signature verification failed for the claim");
+  }
+
+  return isValid;
+}
+
 async function hashMessage(message: Message) {
   const messageStr = `${message.anonGroupId}_${message.text}_${message.timestamp.getTime()}`;
   const messageHash = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(messageStr));
   return new Uint8Array(messageHash);
+}
+
+async function hashClaim(claim: Claim) {
+  const claimStr = `${claim.anonGroupId}_${claim.title}_${claim.timestamp.getTime()}`;
+  const claimHash = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(claimStr));
+  return new Uint8Array(claimHash);
 }
 

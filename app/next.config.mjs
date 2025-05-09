@@ -15,6 +15,14 @@ const nextConfig = {
         './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
         './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
       ],
+      '/api/claims': [
+        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
+        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
+      ],
+      '/api/claim/': [
+        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
+        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
+      ],
     },
   },
   reactStrictMode: false,

@@ -1,8 +1,9 @@
-import type { Message, SignedMessage, SignedMessageWithProof } from "./types";
-import { createMembership, createMessage } from "./api";
-import { generateEphemeralKey, signMessage, verifyMessageSignature } from "./ephemeral-key";
+import type { Claim, Message, SignedClaim, SignedClaimWithProof, SignedMessage, SignedMessageWithProof } from "./types";
+import { createClaim, createMembership, createMessage } from "./api";
+import { generateEphemeralKey, signMessage, verifyMessageSignature, signClaim, verifyClaimSignature } from "./ephemeral-key";
 import { initProver } from "./lazy-modules";
 import { Providers } from "./providers";
+import { createIdentity } from "./semaphore";
 
 export async function generateKeyPairAndRegister(
   providerName: keyof typeof Providers
@@ -17,14 +18,19 @@ export async function generateKeyPairAndRegister(
   const provider = Providers[providerName];
   const { anonGroup, proof, proofArgs } = await provider.generateProof(ephemeralKey);
 
+  // create semaphore identity
+  const semaphoreIdentity = await createIdentity(ephemeralKey.publicKey.toString())
+
   // Send proof to server to create an AnonGroup membership
   await createMembership({
     ephemeralPubkey: ephemeralKey.publicKey.toString(),
     ephemeralPubkeyExpiry: ephemeralKey.expiry,
+    semaphoreIdentityCommitment: semaphoreIdentity.commitment.toString(),
     groupId: anonGroup.id,
     provider: providerName,
     proof,
     proofArgs,
+    role: "curator" // Default create as curator. Grant validator role by claiming role
   });
 
   return { anonGroup, ephemeralPubkey: ephemeralKey.publicKey.toString(), proofArgs };
@@ -44,6 +50,24 @@ export async function postMessage(message: Message) {
   await createMessage(signedMessage);
 
   return signedMessage;
+}
+
+export async function postClaim(claim: Claim) {
+  // Sign the claim with ephemeral key pair
+  const { signature, ephemeralPubkey, ephemeralPubkeyExpiry } = await signClaim(claim);
+ console.log("signature", signature)
+  const signedClaim: SignedClaim = {
+    ...claim,
+    signature: signature,
+    ephemeralPubkey: ephemeralPubkey,
+    ephemeralPubkeyExpiry: ephemeralPubkeyExpiry,
+  };
+
+  // Send the signed claim to the server
+  await createClaim(signedClaim);
+
+  return signedClaim;
+  
 }
 
 export async function verifyMessage(message: SignedMessageWithProof) {
@@ -79,3 +103,32 @@ export async function verifyMessage(message: SignedMessageWithProof) {
     throw new Error(error.message);
   }
 }
+
+export async function verifyClaim(claim: SignedClaimWithProof) {
+  try {
+    // Verify the claim signature (signed with sender's ephemeral pubkey)
+    let isValid = await verifyClaimSignature(claim);
+    if (!isValid) {
+      throw new Error("Signature verification failed for the claim");
+    }
+
+    // Verify the proof that the sender (their ephemeral pubkey) belongs to the AnonGroup
+    const provider = Providers[claim.anonGroupProvider];
+    isValid = await provider.verifyProof(
+      claim.proof,
+      claim.anonGroupId,
+      claim.ephemeralPubkey,
+      claim.ephemeralPubkeyExpiry,
+      claim.proofArgs
+    );
+
+    return isValid;
+  } catch (error) {
+    // @ts-expect-error - error is an unknown type
+    alert(error.message);
+    // @ts-expect-error - error is an unknown type
+    throw new Error(error.message);
+  }
+}
+
+

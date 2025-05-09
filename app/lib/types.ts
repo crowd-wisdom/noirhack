@@ -105,6 +105,53 @@ export interface SignedMessageWithProof extends SignedMessage {
   proofArgs: object;
 }
 
+export interface Claim {
+  id: string;
+  anonGroupId: string;
+  anonGroupProvider: string;
+  title: string;
+  description: string;
+  sourceUrl: string;
+  timestamp: Date;
+  expiresAt: Date;
+  internal: boolean;
+  likes: number;
+  voteDeadline: Date;
+  status: 'pending' | 'active' | 'closed' | 'rejected';
+}
+export interface SignedClaim extends Claim {
+   /** Ed25519 signature of the message - signed by the user's ephemeral private key (in hex format) */
+   signature: bigint;
+   /** Ed25519 pubkey that can verify the signature */
+   ephemeralPubkey: bigint;
+   /** Expiry of the ephemeral pubkey */
+   ephemeralPubkeyExpiry: Date;
+}
+
+export interface SignedClaimWithProof extends SignedClaim {
+   /** ZK proof that the sender belongs to the AnonGroup */
+   proof: Uint8Array;
+   /** Additional args that was returned when the proof was generated */
+   proofArgs: object;
+}
+
+export interface ClaimVote {
+  id: string;
+  claimId: string;
+  voterPubkey: string;
+  role: 'curator' | 'validator'; // Todo: fix: always a validator role (remove it)
+  vote: 'up' | 'down';
+  vote_nullifier: string;
+  createdAt: Date;
+}
+
+export interface EvidenceFile {
+  id: string;
+  claimId: string;
+  fileUrl: string;
+  uploadedAt: Date;
+}
+
 export const LocalStorageKeys = {
   EphemeralKey: "ephemeralKey",
   CurrentGroupId: "currentGroupId",

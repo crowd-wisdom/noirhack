@@ -1,11 +1,11 @@
-export function isMessageLiked(messageId: string) {
-  return window.localStorage.getItem(`liked-${messageId}`) === "T";
+export function isClaimLiked(claimId: string) {
+  return window.localStorage.getItem(`liked-${claimId}`) === "T";
 }
 
-export function setMessageLiked(messageId: string, liked: boolean) {
+export function setClaimLiked(claimId: string, liked: boolean) {
   if (!liked) {
-    window.localStorage.removeItem(`liked-${messageId}`);
+    window.localStorage.removeItem(`liked-${claimId}`);
   } else {
-    window.localStorage.setItem(`liked-${messageId}`, "T");
+    window.localStorage.setItem(`liked-${claimId}`, "T");
   }
 }

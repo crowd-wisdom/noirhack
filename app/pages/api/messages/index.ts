@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { verifyMessageSignature } from "../../../lib/ephemeral-key";
 import { SignedMessage } from "../../../lib/types";
+import { fetchClaims } from "@/lib/api";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

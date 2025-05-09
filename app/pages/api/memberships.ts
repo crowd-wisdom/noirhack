@@ -31,6 +31,9 @@ async function createMembership(req: NextApiRequest, res: NextApiResponse) {
     provider: providerName,
     proof,
     proofArgs,
+    role,
+    semaphoreIdentityCommitment,
+    orgEmailHash,
   } = req.body;
 
   const provider = Providers[providerName];
@@ -47,6 +50,9 @@ async function createMembership(req: NextApiRequest, res: NextApiResponse) {
       throw new Error("Invalid proof");
     }
 
+    // create semaphore identity
+    // 
+
     const { error } = await supabase.from("memberships").insert([
       {
         provider: providerName,
@@ -55,6 +61,9 @@ async function createMembership(req: NextApiRequest, res: NextApiResponse) {
         proof: JSON.stringify(proof),
         proof_args: JSON.stringify(proofArgs),
         group_id: groupId,
+        role,
+        semaphore_identity_commitment: semaphoreIdentityCommitment,
+        org_email_hash: orgEmailHash,
       },
     ]);
 

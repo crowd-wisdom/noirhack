@@ -2,18 +2,17 @@ import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import IonIcon from "@reacticons/ionicons";
-import { LocalStorageKeys, Message, SignedMessageWithProof } from "../lib/types";
+import { Claim, LocalStorageKeys, Message, SignedClaim, SignedClaimWithProof, SignedMessageWithProof } from "../lib/types";
 import { getEphemeralPubkey } from "../lib/ephemeral-key";
-import { generateKeyPairAndRegister, postMessage } from "../lib/core";
+import { generateKeyPairAndRegister, postClaim, postMessage } from "../lib/core";
 import { generateNameFromPubkey } from "../lib/utils";
 import { Providers } from "../lib/providers";
 import SignWithGoogleButton from "./siwg";
-import { createIdentity } from "@/lib/semaphore";
 // import SignInWithMicrosoftButton from "./siwm";
 
-type MessageFormProps = {
+type ClaimFormProps = {
   isInternal?: boolean;
-  onSubmit: (message: SignedMessageWithProof) => void;
+  onSubmit: (message: SignedClaimWithProof) => void;
 };
 
 const prompts = (companyName: string) => [
@@ -25,7 +24,7 @@ const prompts = (companyName: string) => [
 ];
 const randomPromptIndex = Math.floor(Math.random() * prompts("").length);
 
-const MessageForm: React.FC<MessageFormProps> = ({ isInternal, onSubmit }) => {
+const MessageForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
   const [currentGroupId, setCurrentGroupId] = useLocalStorage<string | null>(
     "currentGroupId",
     null
@@ -49,7 +48,9 @@ const MessageForm: React.FC<MessageFormProps> = ({ isInternal, onSubmit }) => {
   `;
 
   // State
-  const [message, setMessage] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("")
+  const [sourceUrl, setSourceUrl] = useState("")
   const [isPosting, setIsPosting] = useState(false);
   const [isRegistering, setIsRegistering] = useState("");
   const [status, setStatus] = useState(!isRegistered ? welcomeMessage : "");
@@ -61,7 +62,8 @@ const MessageForm: React.FC<MessageFormProps> = ({ isInternal, onSubmit }) => {
       setStatus(`Generating cryptographic proof of your membership without revealing your identity.
         This will take about 20 seconds...`);
 
-      const { anonGroup,  } = await generateKeyPairAndRegister(providerName);
+      const { anonGroup } = await generateKeyPairAndRegister(providerName);
+
 
 
       setCurrentGroupId(anonGroup.id);
@@ -81,27 +83,34 @@ const MessageForm: React.FC<MessageFormProps> = ({ isInternal, onSubmit }) => {
     setStatus(welcomeMessage);
   }
 
-  async function onSubmitMessage(e: React.FormEvent) {
+  async function onSubmitClaim(e: React.FormEvent) {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!title.trim() || !description.trim() || !sourceUrl.trim()) return;
 
     setIsPosting(true);
 
     try {
-      const messageObj: Message = {
+      const claimObj: Claim = {
         id: crypto.randomUUID().split("-").slice(0, 2).join(""),
         timestamp: new Date(),
-        text: message,
+        title,
+        description,
+        sourceUrl,
+        status: 'pending',
         internal: !!isInternal,
         likes: 0,
         anonGroupId: currentGroupId as string,
         anonGroupProvider: currentProvider as string,
+        expiresAt: new Date(new Date().getTime() + 2* 24 * 60 * 60 * 1000), // 48 hours
+        voteDeadline: new Date(new Date().getTime() + 24 * 60 * 60 * 1000), // 24 hours
       };
 
-      const signedMessage = await postMessage(messageObj);
+      const signedClaim = await postClaim(claimObj);
 
-      setMessage("");
-      onSubmit(signedMessage as SignedMessageWithProof);
+      setTitle("");
+      setDescription("")
+      setSourceUrl("")
+      onSubmit(signedClaim as SignedClaimWithProof);
     } catch (err) {
       console.error(err);
       setStatus(`Error: ${(err as Error).message}`);
@@ -118,15 +127,41 @@ const MessageForm: React.FC<MessageFormProps> = ({ isInternal, onSubmit }) => {
     <div className="message-form">
       <div style={{ position: "relative" }}>
         <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          maxLength={100}
+          disabled={isTextAreaDisabled}
+        />
+        {!isTextAreaDisabled && title.length > 0 && (
+          <span className="message-form-character-count">
+            {description.length}/100
+          </span>
+        )}
+      </div>
+      <div style={{ position: "relative" }}>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder={randomPrompt}
           maxLength={280}
           disabled={isTextAreaDisabled}
         />
-        {!isTextAreaDisabled && message.length > 0 && (
+        {!isTextAreaDisabled && description.length > 0 && (
           <span className="message-form-character-count">
-            {message.length}/280
+            {description.length}/280
+          </span>
+        )}
+      </div>
+      <div style={{ position: "relative" }}>
+        <textarea
+          value={sourceUrl}
+          onChange={(e) => setSourceUrl(e.target.value)}
+          maxLength={280}
+          disabled={isTextAreaDisabled}
+        />
+        {!isTextAreaDisabled && sourceUrl.length > 0 && (
+          <span className="message-form-character-count">
+            {sourceUrl.length}/280
           </span>
         )}
       </div>
@@ -170,8 +205,8 @@ const MessageForm: React.FC<MessageFormProps> = ({ isInternal, onSubmit }) => {
           <>
             <button
               className="message-form-post-button"
-              onClick={onSubmitMessage}
-              disabled={!!isRegistering || isPosting || message.length === 0}
+              onClick={onSubmitClaim}
+              disabled={!!isRegistering || isPosting || title.length === 0 || description.length === 0 || sourceUrl.length == 0}
             >
               {isPosting ? <span className="spinner-icon small" /> : "Post"}
             </button>
