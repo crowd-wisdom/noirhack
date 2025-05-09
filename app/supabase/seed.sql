@@ -1,0 +1,2 @@
+INSERT INTO public.whitelisted_domains (id, group_id,active) VALUES ('7cc6aeef-1f4f-4af6-b010-7c27438c07c6', "aztec-labs.com",1)
+INSERT INTO public.whitelisted_domains (id, group_id,active) VALUES ('f433b24c-9937-444c-981a-06bad55d0ad9', "pse.dev",1)
