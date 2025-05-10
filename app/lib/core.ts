@@ -1,6 +1,6 @@
 import type { Claim, Message, SignedClaim, SignedClaimWithProof, SignedMessage, SignedMessageWithProof } from "./types";
-import { createClaim, createMembership, createMessage } from "./api";
-import { generateEphemeralKey, signMessage, verifyMessageSignature, signClaim, verifyClaimSignature } from "./ephemeral-key";
+import { createClaim, createMembership } from "./api";
+import { generateEphemeralKey, verifyMessageSignature, signClaim, verifyClaimSignature } from "./ephemeral-key";
 import { initProver } from "./lazy-modules";
 import { Providers } from "./providers";
 import { addIdentityToCuratorsGroup, createIdentity, saveIdentity } from "./semaphore";
@@ -36,22 +36,6 @@ export async function generateKeyPairAndRegister(
   
   const proofSemaphoreGroup = addIdentityToCuratorsGroup();
   return { anonGroup, ephemeralPubkey: ephemeralKey.publicKey.toString(), proofArgs, semaphoreIdentity, proofSemaphoreGroup };
-}
-
-export async function postMessage(message: Message) {
-  // Sign the message with the ephemeral key pair
-  const { signature, ephemeralPubkey, ephemeralPubkeyExpiry } = await signMessage(message);
-  const signedMessage: SignedMessage = {
-    ...message,
-    signature: signature,
-    ephemeralPubkey: ephemeralPubkey,
-    ephemeralPubkeyExpiry: ephemeralPubkeyExpiry,
-  };
-
-  // Send the signed message to the server
-  await createMessage(signedMessage);
-
-  return signedMessage;
 }
 
 export async function postClaim(claim: Claim) {

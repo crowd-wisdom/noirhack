@@ -1,52 +1,5 @@
-import { Message, SignedClaim, SignedMessage, SignedMessageWithProof } from "./types";
+import { SignedClaim } from "./types";
 import { getEphemeralPubkey } from "./ephemeral-key";
-
-export async function fetchMessages({
-  limit,
-  groupId,
-  isInternal,
-  beforeTimestamp,
-  afterTimestamp,
-}: {
-  limit: number;
-  isInternal?: boolean;
-  groupId?: string;
-  beforeTimestamp?: number | null;
-  afterTimestamp?: number | null;
-}) {
-  const url = new URL(window.location.origin + "/api/messages");
-
-  url.searchParams.set("limit", limit.toString());
-  if (groupId) url.searchParams.set("groupId", groupId);
-  if (isInternal) url.searchParams.set("isInternal", "true");
-  if (afterTimestamp) url.searchParams.set("afterTimestamp", afterTimestamp.toString());
-  if (beforeTimestamp) url.searchParams.set("beforeTimestamp", beforeTimestamp.toString());
-
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  };
-
-  if (isInternal) {
-    const pubkey = getEphemeralPubkey();
-    if (!pubkey) {
-      throw new Error("No public key found");
-    }
-    headers["Authorization"] = `Bearer ${pubkey}`; // Pubkey modulus is used as the bearer token
-  }
-
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    const errorMessage = await response.text();
-    throw new Error(`Call to /messages API failed: ${errorMessage}`);
-  }
-
-  const messages = await response.json();
-  return messages.map((message: Message) => ({
-    ...message,
-    timestamp: new Date(message.timestamp),
-  }));
-}
 
 export async function fetchClaims({
   status,
@@ -91,43 +44,6 @@ export async function fetchClaims({
     //anonGroupId: claim.anon_gr
     timestamp: new Date(claim.timestamp),
   }));
-}
-
-export async function fetchMessage(
-  id: string,
-  isInternal: boolean = false
-): Promise<SignedMessageWithProof> {
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  };
-
-  if (isInternal) {
-    const pubkey = getEphemeralPubkey();
-    if (!pubkey) {
-      throw new Error("No public key found");
-    }
-    headers["Authorization"] = `Bearer ${pubkey}`;
-  }
-
-  const response = await fetch(`/api/messages/${id}`, { headers });
-
-  if (!response.ok) {
-    const errorMessage = await response.text();
-    throw new Error(`Call to /messages/${id} API failed: ${errorMessage}`);
-  }
-
-  const message = await response.json();
-  try {
-    message.signature = BigInt(message.signature);
-    message.ephemeralPubkey = BigInt(message.ephemeralPubkey);
-    message.ephemeralPubkeyExpiry = new Date(message.ephemeralPubkeyExpiry);
-    message.timestamp = new Date(message.timestamp);
-    message.proof = Uint8Array.from(message.proof);
-  } catch (error) {
-    console.warn("Error parsing message:", error);
-  }
-
-  return message;
 }
 
 export async function createMembership({
@@ -217,26 +133,6 @@ export async function claimValidatorRole() {
   const {success, hasRole} = await response.json();
 
   return hasRole;
-}
-
-export async function createMessage(signedMessage: SignedMessage) {
-  const response = await fetch("/api/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      ...signedMessage,
-      ephemeralPubkey: signedMessage.ephemeralPubkey.toString(),
-      signature: signedMessage.signature.toString(),
-    }),
-  });
-
-  if (!response.ok) {
-    const errorMessage = await response.text();
-    console.error(`Call to /messages API failed: ${errorMessage}`);
-    throw new Error("Call to /messages API failed");
-  }
 }
 
 export async function createClaim(signedClaim: SignedClaim) {
