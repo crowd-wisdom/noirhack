@@ -7,7 +7,8 @@
         "@aztec/bb.js": "0.82.2",
         "@noble/ed25519": "^2.2.3",
         "@noble/hashes": "^1.7.1",
-        "@noir-lang/noir_js": "^1.0.0-beta.3",
+        "@noir-lang/noir_js": "^1.0.0-beta.5",
+        "@noir-lang/noir_wasm": "^1.0.0-beta.5",
         "@reacticons/ionicons": "^7.1.0",
         "@semaphore-protocol/data": "4.10.0",
         "@semaphore-protocol/group": "4.9.1",
@@ -170,15 +171,15 @@
 
     "@nodelib/fs.walk": ["@nodelib/fs.walk@1.2.8", "", { "dependencies": { "@nodelib/fs.scandir": "2.1.5", "fastq": "^1.6.0" } }, "sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg=="],
 
-    "@noir-lang/acvm_js": ["@noir-lang/acvm_js@1.0.0-beta.3", "", {}, "sha512-Dc6g5rJr/x7tKsWvnTbZvjwqI1uiAtvq+NAz5tcLRzUHJw6NAvDXEH5h117h+BfIAhhsHXuPTkDfDB1Gnqp/Bg=="],
+    "@noir-lang/acvm_js": ["@noir-lang/acvm_js@1.0.0-beta.5", "", {}, "sha512-t2E2h7ZOkbP4+ukPfvicIGUHsF/gX0kxGIwQvOe+hcR7p2j6ttxWKBHBurQrGLuII9+6qUmp6P6fnOBNasoslQ=="],
 
-    "@noir-lang/noir_js": ["@noir-lang/noir_js@1.0.0-beta.3", "", { "dependencies": { "@noir-lang/acvm_js": "1.0.0-beta.3", "@noir-lang/noirc_abi": "1.0.0-beta.3", "@noir-lang/types": "1.0.0-beta.3" } }, "sha512-Nt/rP7zRMOfNq9urD8+GtRpYqEc0K10FoKXs/v+ZTbGaP6Jkm7+F+UPj2bkWy66k1HNzsN6ortli7c7mnLDHwA=="],
+    "@noir-lang/noir_js": ["@noir-lang/noir_js@1.0.0-beta.5", "", { "dependencies": { "@noir-lang/acvm_js": "1.0.0-beta.5", "@noir-lang/noirc_abi": "1.0.0-beta.5", "@noir-lang/types": "1.0.0-beta.5", "pako": "^2.1.0" } }, "sha512-ab0h/MTbqqj/BqWkvSpeYtTcUrv645NgNteE208QRJiM9fEwL6RcLXb3Ms54csortzLB0CVMtnV3qGkeG+Xklg=="],
 
-    "@noir-lang/noir_wasm": ["@noir-lang/noir_wasm@1.0.0-beta.3", "", { "dependencies": { "@noir-lang/types": "1.0.0-beta.3", "pako": "^2.1.0" } }, "sha512-1EZCmaSYISxJIBLZN1tEyu25E7WIWAYpT3JdnVx+YCHk5uPWtXgroZSqypkpi39TVOJZT6DU/bPfrx0N1GSyog=="],
+    "@noir-lang/noir_wasm": ["@noir-lang/noir_wasm@1.0.0-beta.5", "", { "dependencies": { "@noir-lang/types": "1.0.0-beta.5", "pako": "^2.1.0" } }, "sha512-Mm4cIGXaX7xOhYij5BRFo1PieECYco3R+hRagBixm/LJWYwa1Sy8WVsDKvVCbcD1DeVeVNKIBk4Y0XAThOPvCw=="],
 
-    "@noir-lang/noirc_abi": ["@noir-lang/noirc_abi@1.0.0-beta.3", "", { "dependencies": { "@noir-lang/types": "1.0.0-beta.3" } }, "sha512-L6BI64ennatwTUciHqQ14ahUFsgzL41tzghqUELzO7XojasStcWDaSMjlTxca/2pvpWtEJHDtseKe1VZWIIVXQ=="],
+    "@noir-lang/noirc_abi": ["@noir-lang/noirc_abi@1.0.0-beta.5", "", { "dependencies": { "@noir-lang/types": "1.0.0-beta.5" } }, "sha512-1ZH2oXlgwdrNliWLVbDxyY6UPCsZ+pjA8PiIdzeaE+Kpn6J3diX8MsbYHyx8em0Vn2MXWt+CSa90YdHWy+hKrw=="],
 
-    "@noir-lang/types": ["@noir-lang/types@1.0.0-beta.3", "", {}, "sha512-BPOmf0qDiTn4wH1Lo7mHa67GTQFueIVaDUcUb+N9+ALiXC5nVU8HrzWmx1yvZB64ZiCEy7yPdNEaNrszSrE2fg=="],
+    "@noir-lang/types": ["@noir-lang/types@1.0.0-beta.5", "", {}, "sha512-NNddtY4KMIA7cwa69A2NXeAVvzKX44fmojuwY1HBgzwraHOY1mWyaQC+Vl9Xm97fAm2qpXTrbVT6vPkhag0vHg=="],
 
     "@nolyfill/is-core-module": ["@nolyfill/is-core-module@1.0.39", "", {}, "sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA=="],
 
@@ -1214,6 +1215,10 @@
 
     "@semaphore-protocol/data/ethers": ["ethers@6.13.4", "", { "dependencies": { "@adraffy/ens-normalize": "1.10.1", "@noble/curves": "1.2.0", "@noble/hashes": "1.3.2", "@types/node": "22.7.5", "aes-js": "4.0.0-beta.5", "tslib": "2.7.0", "ws": "8.17.1" } }, "sha512-21YtnZVg4/zKkCQPjrDj38B1r4nQvTZLopUGMLQ1ePU2zV/joCfDC3t3iKQjWRzjjjbzR+mdAIoikeBRNkdllA=="],
 
+    "@semaphore-protocol/proof/@noir-lang/noir_js": ["@noir-lang/noir_js@1.0.0-beta.3", "", { "dependencies": { "@noir-lang/acvm_js": "1.0.0-beta.3", "@noir-lang/noirc_abi": "1.0.0-beta.3", "@noir-lang/types": "1.0.0-beta.3" } }, "sha512-Nt/rP7zRMOfNq9urD8+GtRpYqEc0K10FoKXs/v+ZTbGaP6Jkm7+F+UPj2bkWy66k1HNzsN6ortli7c7mnLDHwA=="],
+
+    "@semaphore-protocol/proof/@noir-lang/noir_wasm": ["@noir-lang/noir_wasm@1.0.0-beta.3", "", { "dependencies": { "@noir-lang/types": "1.0.0-beta.3", "pako": "^2.1.0" } }, "sha512-1EZCmaSYISxJIBLZN1tEyu25E7WIWAYpT3JdnVx+YCHk5uPWtXgroZSqypkpi39TVOJZT6DU/bPfrx0N1GSyog=="],
+
     "@semaphore-protocol/proof/@semaphore-protocol/utils": ["@semaphore-protocol/utils@4.9.1", "", { "dependencies": { "ethers": "^6.13.4" } }, "sha512-fhiVW/CL+zU/DvKAibBh3thEg2GKTMvNEl2V+fcJYbiyjxjZPfwvVHS/tP2wxBibU8bvtfcuqAk3WFdJXYFG2A=="],
 
     "@semaphore-protocol/proof/@zk-kit/artifacts": ["@zk-kit/artifacts@./zk-kit-artifacts-2.0.1.tgz", { "dependencies": { "@commander-js/extra-typings": "^12.1.0", "@inquirer/input": "^2.1.8", "@inquirer/select": "^2.3.4", "@noir-lang/noir_js": "1.0.0-beta.3", "circomkit": "^0.2.1", "ora": "^5.4.1", "snarkjs": "^0.7.4" }, "bin": { "snarkli": "./dist/cli/index.js" } }],
@@ -1313,6 +1318,14 @@
     "@semaphore-protocol/data/ethers/@types/node": ["@types/node@22.7.5", "", { "dependencies": { "undici-types": "~6.19.2" } }, "sha512-jML7s2NAzMWc//QSJ1a3prpk78cOPchGvXJsC3C6R6PSMoooztvRVQEz89gmBTBY1SPMaqo5teB4uNHPdetShQ=="],
 
     "@semaphore-protocol/data/ethers/tslib": ["tslib@2.7.0", "", {}, "sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA=="],
+
+    "@semaphore-protocol/proof/@noir-lang/noir_js/@noir-lang/acvm_js": ["@noir-lang/acvm_js@1.0.0-beta.3", "", {}, "sha512-Dc6g5rJr/x7tKsWvnTbZvjwqI1uiAtvq+NAz5tcLRzUHJw6NAvDXEH5h117h+BfIAhhsHXuPTkDfDB1Gnqp/Bg=="],
+
+    "@semaphore-protocol/proof/@noir-lang/noir_js/@noir-lang/noirc_abi": ["@noir-lang/noirc_abi@1.0.0-beta.3", "", { "dependencies": { "@noir-lang/types": "1.0.0-beta.3" } }, "sha512-L6BI64ennatwTUciHqQ14ahUFsgzL41tzghqUELzO7XojasStcWDaSMjlTxca/2pvpWtEJHDtseKe1VZWIIVXQ=="],
+
+    "@semaphore-protocol/proof/@noir-lang/noir_js/@noir-lang/types": ["@noir-lang/types@1.0.0-beta.3", "", {}, "sha512-BPOmf0qDiTn4wH1Lo7mHa67GTQFueIVaDUcUb+N9+ALiXC5nVU8HrzWmx1yvZB64ZiCEy7yPdNEaNrszSrE2fg=="],
+
+    "@semaphore-protocol/proof/@noir-lang/noir_wasm/@noir-lang/types": ["@noir-lang/types@1.0.0-beta.3", "", {}, "sha512-BPOmf0qDiTn4wH1Lo7mHa67GTQFueIVaDUcUb+N9+ALiXC5nVU8HrzWmx1yvZB64ZiCEy7yPdNEaNrszSrE2fg=="],
 
     "@semaphore-protocol/proof/@zk-kit/artifacts/snarkjs": ["snarkjs@0.7.5", "", { "dependencies": { "@iden3/binfileutils": "0.0.12", "bfj": "^7.0.2", "blake2b-wasm": "^2.4.0", "circom_runtime": "0.1.28", "ejs": "^3.1.6", "fastfile": "0.0.20", "ffjavascript": "0.3.1", "js-sha3": "^0.8.0", "logplease": "^1.2.15", "r1csfile": "0.0.48" }, "bin": { "snarkjs": "build/cli.cjs" } }, "sha512-h+3c4rXZKLhLuHk4LHydZCk/h5GcNvk5GjVKRRkHmfb6Ntf8gHOA9zea3g656iclRuhqQ3iKDWFgiD9ypLrKiA=="],
 

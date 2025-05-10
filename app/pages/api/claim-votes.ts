@@ -1,14 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
-
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+import { generateNullifierVote,stringToNumberInRange } from "@/lib/circuits/simple_vote";
+
 
 if (!supabaseUrl || !supabaseKey) {
   throw new Error("Missing Supabase environment variables");
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+
 
 export default async function handler(
   req: NextApiRequest,
@@ -65,16 +68,22 @@ async function createClaimVote(req: NextApiRequest, res: NextApiResponse) {
       throw new Error("Cannot vote on inactive or closed claims");
     }
     console.log("claimid", claimId, "voterPubkey", voterPubkey, "vote", vote)
+    const hash = await stringToNumberInRange(voterPubkey)
+    const vote_nullifier = await generateNullifierVote(vote === "up"? "1" : "0",hash.toString());
 
-    // Todo: checkear si existe nullifier
-    const nullifier_exist = false;
-    if (nullifier_exist) {
-      throw new Error("Nullifier exist. Already voted.");
-    }
-         
-    // create nullifier 
-    const vote_nullifier = "";
+    console.log("Nullifier",vote_nullifier)
 
+    const { data: nullifier_check} = await supabase
+          .from("claim_votes")
+          .select("vote_nullifier")
+          .eq("claim_id", claimId)
+          .eq("vote_nullifier", vote_nullifier)
+          .single();
+
+        if (nullifier_check !== null) {
+          throw new Error("Nullifier exist. Already voted.");
+        }
+    
     const { error } = await supabase.from("claim_votes").insert([
       {
         id: crypto.randomUUID(),
