@@ -66,7 +66,14 @@ async function createClaimVote(req: NextApiRequest, res: NextApiResponse) {
     }
     console.log("claimid", claimId, "voterPubkey", voterPubkey, "vote", vote)
 
-    // Todo: create nullifier 
+    // Todo: checkear si existe nullifier
+    const nullifier_exist = false;
+    if (nullifier_exist) {
+      throw new Error("Nullifier exist. Already voted.");
+    }
+         
+    // create nullifier 
+    const vote_nullifier = "";
 
     const { error } = await supabase.from("claim_votes").insert([
       {
@@ -75,6 +82,7 @@ async function createClaimVote(req: NextApiRequest, res: NextApiResponse) {
         voter_pubkey: voterPubkey,
         role: "validator",
         vote,
+        vote_nullifier,
         created_at: new Date(),
       },
     ]);
