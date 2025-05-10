@@ -238,6 +238,24 @@ export async function checkVoteNullifier(claimId: string) {
     return voted;
 }
 
+export async function closeClaims() {
+  const response = await fetch("/api/close-claims", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    console.error(`Call to /close-claims API failed: ${errorMessage}`);
+    throw new Error("Call to /close-claims API failed");
+  }
+  const result = await response.json();
+  return result;
+}
+
 export async function fetchClaim(claimId: string, isInternal: boolean) {
   
     const pubkey = getEphemeralPubkey();

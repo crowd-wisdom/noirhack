@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { fetchClaim, fetchClaims } from "../lib/api";
+import { fetchClaim, fetchClaims, closeClaims } from "../lib/api";
 import ClaimCard from "./claim-card";
 import { SignedClaimWithProof } from "../lib/types";
 import ClaimForm from "./claim-form";
@@ -112,6 +112,15 @@ const ClaimList: React.FC<ClaimListProps> = ({
     }
   }, [groupId, isInternal, claims, status]);
 
+  const checkForClosedClaims = useCallback(async () => {
+    try {
+      const result = await closeClaims();
+      console.log("close claims:", result)
+    } catch (error) {
+      console.error("Error checking for new claims:", error);
+    }
+  }, [groupId, claims, status])
+
   // Effects
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -121,6 +130,7 @@ const ClaimList: React.FC<ClaimListProps> = ({
         if (claimListRef.current && claimListRef.current.scrollTop === 0) {
           checkForNewClaims();
         }
+        checkForClosedClaims();
       }, pollInterval);
     };
 
