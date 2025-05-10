@@ -6,7 +6,7 @@ import IonIcon from "@reacticons/ionicons";
 import type { SignedClaim } from "../lib/types";
 import { generateNameFromPubkey } from "../lib/utils";
 import { setClaimLiked, isClaimLiked } from "../lib/store";
-import { fetchClaim, toggleLike } from "../lib/api";
+import { checkVoteNullifier, fetchClaim, toggleLike, voteOnClaim } from "../lib/api";
 import { hasEphemeralKey } from "../lib/ephemeral-key";
 import { verifyClaim, verifyMessage } from "../lib/core";
 import { Providers } from "../lib/providers";
@@ -14,11 +14,12 @@ import { Providers } from "../lib/providers";
 interface ClaimCardProps {
   claim: SignedClaim;
   isInternal?: boolean;
+  vote?: boolean;
 }
 
 type VerificationStatus = "idle" | "verifying" | "valid" | "invalid" | "error";
 
-const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal }) => {
+const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal, vote }) => {
   const timeAgo = useRef(new TimeAgo("en-US")).current;
 
   const provider = Providers[claim.anonGroupProvider];
@@ -34,9 +35,22 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal }) => {
   const [isLiked, setIsLiked] = useState(isClaimLiked(claim.id));
   const [verificationStatus, setVerificationStatus] =
     useState<VerificationStatus>("idle");
+  const [hasVoted, setHasVoted] = useState<boolean>(false);
 
   const isGroupPage = window.location.pathname === `/${provider.getSlug()}/${claim.anonGroupId}`;
   const isClaimPage = window.location.pathname === `/claims/${claim.id}`;
+
+  // Check vote status when component mounts or when vote prop changes
+  React.useEffect(() => {
+    if (vote) {
+      checkVoteNullifier(claim.id)
+        .then(voted => setHasVoted(voted))
+        .catch(error => {
+          console.error("Error checking vote status:", error);
+          setHasVoted(false);
+        });
+    }
+  }, [vote, claim.id]);
 
   // Handlers
   async function onLikeClick() {
@@ -146,6 +160,47 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal }) => {
       </span>
     );
   }
+  // TODO: manage vote verification status
+  function renderVoteVerificationStatus() {
+    if (verificationStatus === "idle") {
+      return (
+        <span className="message-card-verify-button" onClick={onVerifyClick}>
+          Verify
+        </span>
+      );
+    }
+
+    return (
+      <span className={`message-card-verify-status ${verificationStatus}`}>
+        {verificationStatus === "verifying" && (
+          <span className="message-card-verify-icon spinner-icon small"></span>
+        )}
+        {verificationStatus === "valid" && (
+          <span className="message-card-verify-icon valid">
+            <IonIcon name="checkmark-outline" />
+          </span>
+        )}
+        {verificationStatus === "invalid" && (
+          <span className="message-card-verify-icon invalid">
+            <IonIcon name="close-outline" />
+          </span>
+        )}
+        {verificationStatus === "error" && (
+          <span className="message-card-verify-icon error">
+            <IonIcon name="alert-outline" />
+          </span>
+        )}
+      </span>
+    );
+  }
+
+  function renderVoteStatusBadge() {
+    return (
+      <span className={`claim-status-badge ${claim.status}`}>
+        Voted
+      </span>
+    );
+  }
 
   function renderStatusBadge() {
     return (
@@ -155,6 +210,13 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal }) => {
     );
   }
 
+  function upvote() {
+    voteOnClaim(claim.id, true)
+  }
+
+  function downvote() {
+    voteOnClaim(claim.id, false)
+  }
   // Render
   return (
     <div className="message-card">
@@ -180,7 +242,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal }) => {
         )}
       </main>
 
-      <div className="message-card-footer">
+      <div className="message-card-footer flex w-full">
         <div className="like-button-container">
           <button
             onClick={onLikeClick}
@@ -191,6 +253,22 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal }) => {
             <span className="like-count">{likeCount}</span>
           </button>
         </div>
+        {vote && !hasVoted && (
+          <div className="vote-buttons">
+            <button className="vote-button upvote" onClick={() => upvote()}>
+              <IonIcon name="arrow-up-outline" />
+            </button>
+            <button className="vote-button downvote" onClick={()=> downvote()}>
+              <IonIcon name="arrow-down-outline" />
+            </button>
+          </div>
+        )}
+        {hasVoted && (
+          <div className="message-card-header-right">
+            {renderVoteStatusBadge()}
+            {renderVoteVerificationStatus()}
+          </div>
+        )}
       </div>
     </div>
   );

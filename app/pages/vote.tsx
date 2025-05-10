@@ -31,6 +31,7 @@ export default function GroupPage() {
 
         <ClaimList
           status={"pending"}
+          vote={true}
         />
       </div>
     </>

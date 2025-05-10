@@ -32,7 +32,6 @@ const ClaimList: React.FC<ClaimListProps> = ({
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState("");
   const [pollInterval, setPollInterval] = useState(INITIAL_POLL_INTERVAL);
-
   // Refs
   const observer = useRef<IntersectionObserver | null>(null);
   const claimListRef = useRef<HTMLDivElement>(null);
@@ -197,6 +196,7 @@ const ClaimList: React.FC<ClaimListProps> = ({
             <ClaimCard
               claim={claim as SignedClaimWithProof}
               isInternal={isInternal}
+              vote={vote}
             />
           </div>
         ))}

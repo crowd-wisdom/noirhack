@@ -154,6 +154,8 @@ a.message-card-header-logo:hover {
 
 .message-card-footer {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 1.5rem;
 }
 

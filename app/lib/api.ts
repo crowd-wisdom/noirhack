@@ -290,6 +290,58 @@ export async function toggleLike(claimId: string, like: boolean) {
   }
 }
 
+export async function voteOnClaim(claimId: string, upvote: boolean) {
+  try {
+    const pubkey = getEphemeralPubkey();
+
+    const response = await fetch("/api/claim-votes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${pubkey}`,
+      },
+      body: JSON.stringify({
+        claimId,
+        vote: upvote ? "up" : "down",
+      }),
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error(`Call to /claim-votes API failed: ${errorMessage}`);
+      throw new Error("Call to /claim-votes API failed");
+    }
+
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    console.error("Error toggling like:", error);
+    throw error;
+  }
+}
+
+export async function checkVoteNullifier(claimId: string) {
+  const pubkey = getEphemeralPubkey();
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    headers.Authorization = `Bearer ${pubkey}`;
+    const response = await fetch(`/api/voted?claimId=${claimId}`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error(`Call to /voted/${claimId} API failed: ${errorMessage}`);
+      throw new Error("Call to /voted API failed");
+    }
+
+    const {voted, nullifier} = await response.json();
+    console.log("nullifier")
+    return voted;
+}
+
 export async function fetchClaim(claimId: string, isInternal: boolean) {
   
     const pubkey = getEphemeralPubkey();

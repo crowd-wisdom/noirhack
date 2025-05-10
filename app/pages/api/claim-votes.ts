@@ -27,11 +27,21 @@ export default async function handler(
 async function createClaimVote(req: NextApiRequest, res: NextApiResponse) {
   const {
     claimId,
-    voterPubkey,
     vote,
   } = req.body;
 
   try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res
+        .status(401)
+        .json({ error: "Authorization required" });
+      res.end();
+      return;
+    }
+
+    const voterPubkey = authHeader.split(" ")[1];
+
     // Check if the voter is a validator
     const { data: voter, error: voterError } = await supabase
       .from("memberships")
@@ -50,12 +60,14 @@ async function createClaimVote(req: NextApiRequest, res: NextApiResponse) {
       .eq("id", claimId)
       .single();
 
-    if (claimError || !claim || claim.status !== "active") {
+    // Todo: check if worth to manage a "active" status for voting start
+    if (claimError || !claim || claim.status !== "pending") {
       throw new Error("Cannot vote on inactive or closed claims");
     }
-
+    console.log("claimid", claimId, "voterPubkey", voterPubkey, "vote", vote)
     const { error } = await supabase.from("claim_votes").insert([
       {
+        id: crypto.randomUUID(),
         claim_id: claimId,
         voter_pubkey: voterPubkey,
         role: "validator",
