@@ -10,7 +10,7 @@ export default function HomePage() {
       </Head>
 
       <div className="home-page">
-        <ClaimList showForm />
+        <ClaimList showForm={true} status="closed"/>
       </div>
     </>
   );

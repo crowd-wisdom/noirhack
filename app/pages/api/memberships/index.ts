@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
-import { Providers } from "../../lib/providers";
+import { Providers } from "../../../lib/providers";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -49,9 +49,6 @@ async function createMembership(req: NextApiRequest, res: NextApiResponse) {
     if (!isValid) {
       throw new Error("Invalid proof");
     }
-
-    // create semaphore identity
-    // 
 
     const { error } = await supabase.from("memberships").insert([
       {

@@ -191,11 +191,6 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal }) => {
             <span className="like-count">{likeCount}</span>
           </button>
         </div>
-        {!isClaimPage && (
-          <Link href={`/claims/${claim.id}`} className="claim-link">
-            View Details
-          </Link>
-        )}
       </div>
     </div>
   );

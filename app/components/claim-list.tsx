@@ -12,15 +12,19 @@ const INITIAL_POLL_INTERVAL = 10000; // 10 seconds
 const MAX_POLL_INTERVAL = 100000; // 100 seconds
 
 type ClaimListProps = {
+  status?: 'pending' | 'active' | 'closed' | 'rejected';
   isInternal?: boolean;
   showForm?: boolean;
   groupId?: string;
+  vote?: boolean;
 };
 
 const ClaimList: React.FC<ClaimListProps> = ({
+  status,
   isInternal,
   showForm,
   groupId,
+  vote
 }) => {
   // State
   const [claims, setClaims]  = useState<SignedClaimWithProof[]>([]);
@@ -57,6 +61,7 @@ const ClaimList: React.FC<ClaimListProps> = ({
 
       try {
         const fetchedClaims = await fetchClaims({
+          status,
           isInternal: !!isInternal,
           limit: CLAIMS_PER_PAGE,
           beforeTimestamp,
@@ -88,6 +93,7 @@ const ClaimList: React.FC<ClaimListProps> = ({
 
     try {
       const newClaims = await fetchClaims({
+        status,
         groupId,
         isInternal: !!isInternal,
         limit: CLAIMS_PER_PAGE,
@@ -105,7 +111,7 @@ const ClaimList: React.FC<ClaimListProps> = ({
     } catch (error) {
       console.error("Error checking for new claims:", error);
     }
-  }, [groupId, isInternal, claims]);
+  }, [groupId, isInternal, claims, status]);
 
   // Effects
   useEffect(() => {

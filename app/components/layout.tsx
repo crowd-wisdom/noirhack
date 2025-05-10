@@ -9,6 +9,7 @@ import IonIcon from "@reacticons/ionicons";
 import { LocalStorageKeys } from "../lib/types";
 import { Providers } from "../lib/providers";
 import logo from "@/assets/logo.png";
+import { checkMembershipRole, claimValidatorRole } from "../lib/api";
 
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -25,31 +26,34 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     null
   );
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [consoleShown, setConsoleShown] = React.useState(false);
-
+  const [isValidator, setIsValidator] = React.useState(false);
+ 
   let slug = null;
   if (currentProvider && currentGroupId) {
     const provider = Providers[currentProvider];
     slug = provider.getSlug();
   }
 
+  // Check if user is a validator
+  React.useEffect(() => {
+    const checkValidatorRole = async () => {
+      try {
+        const hasValidatorRole = await checkMembershipRole({ role: "validator" });
+        setIsValidator(hasValidatorRole);
+      } catch (error) {
+        console.error("Error checking validator role:", error);
+        setIsValidator(false);
+      }
+    };
+
+    checkValidatorRole();
+  }, []);
+
   // Set dark mode
   React.useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
-  React.useEffect(() => {
-    if (consoleShown) {
-      return;
-    }
-
-    console.log(
-      '%c📝 If you run in to any errors, please create an issue at https://github.com/saleel/stealthnote/issues\n' +
-      '🐦 You can also reach out to me on Twitter at https://twitter.com/_saleel',
-      'background: #efefef; color: black; font-size: 16px; padding: 10px; border-radius: 3px;'
-    );
-    setConsoleShown(true);
-  }, [consoleShown]);
 
   return (
     <>
@@ -65,13 +69,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             className="mobile-header-logo"
             style={isSidebarOpen ? { display: "none" } : {}}
           >
-            <Link href="/">StealthNote</Link>
+            <Link href="/">CrowdWisdom</Link>
           </div>
         </div>
         <aside className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
           <div className="logo">
             <Link href="/">
-              <Image src={logo} alt="StealthNote" width={200} height={50} />
+              <Image src={logo} alt="CrowdWisdom" width={200} height={50} />
             </Link>
           </div>
           <nav className="sidebar-nav">
@@ -81,16 +85,30 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 href="/"
                 className="sidebar-nav-item"
               >
-                Home
+                Validated Claims
               </Link>
 
-              {slug && (
+              {isValidator && (
                 <Link
                   onClick={() => setIsSidebarOpen(false)}
-                  href={`/${slug}/${currentGroupId}/internal`}
+                  href={`/vote`}
                   className="sidebar-nav-item"
                 >
-                  {currentGroupId} Internal
+                 Vote on Claims
+                </Link>
+              )}
+              {!isValidator && (
+                <Link
+                onClick={async () => {
+                    await claimValidatorRole(); // Claim the role
+                    const hasValidatorRole = await checkMembershipRole({ role: "validator" }); // Recheck
+                    setIsValidator(hasValidatorRole); // Update state
+                    setIsSidebarOpen(false); // Optional: close the sidebar
+                }}
+                  href={"#"}
+                  className="sidebar-nav-item"
+                >
+                 Claim Validator Role
                 </Link>
               )}
             </div>
@@ -107,27 +125,17 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </button>
               <Link
                 onClick={() => setIsSidebarOpen(false)}
-                href="https://saleel.xyz/blog/stealthnote/"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="How it works"
-                className="sidebar-nav-footer-item"
-              >
-                <IonIcon name="reader" />
-              </Link>
-              <Link
-                onClick={() => setIsSidebarOpen(false)}
                 className="sidebar-nav-footer-item"
                 target="_blank"
                 title="Source Code"
                 rel="noopener noreferrer"
-                href="https://github.com/saleel/stealthnote"
+                href="https://github.com/crowd-wisdom/noirhack"
               >
                 <IonIcon name="logo-github" />
               </Link>
               <Link
                 onClick={() => setIsSidebarOpen(false)}
-                href="https://x.com/stealthnote_"
+                href="https://x.com/crowdwisdom_xyz"
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Twitter"
@@ -150,18 +158,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </Link>
             <span> ❤️ </span>
           </p>
-          <div className="sidebar-nav-footer-links">
-            <Link
-              href="/disclaimer"
-            >
-              Disclaimer
-            </Link>
-            <Link
-              href="/privacy"
-            >
-              Privacy Policy
-            </Link>
-          </div>
         </aside>
         <main className="container">
           <div className="description">{children}</div>

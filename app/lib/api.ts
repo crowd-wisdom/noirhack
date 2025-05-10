@@ -49,22 +49,26 @@ export async function fetchMessages({
 }
 
 export async function fetchClaims({
+  status,
   limit,
   groupId,
   isInternal,
   beforeTimestamp,
   afterTimestamp,
 }: {
+ 
   limit: number;
   isInternal?: boolean;
   groupId?: string;
   beforeTimestamp?: number | null;
   afterTimestamp?: number | null;
+  status: 'pending' | 'active' | 'closed' | 'rejected' | undefined;
 }) {
   const url = new URL(window.location.origin + "/api/claims");
 
   url.searchParams.set("limit", limit.toString());
   if (groupId) url.searchParams.set("groupId", groupId);
+  if (status) url.searchParams.set("status", status);
   if (isInternal) url.searchParams.set("isInternal", "true");
   if (afterTimestamp) url.searchParams.set("afterTimestamp", afterTimestamp.toString());
   if (beforeTimestamp) url.searchParams.set("beforeTimestamp", beforeTimestamp.toString());
@@ -165,6 +169,54 @@ export async function createMembership({
     console.error(`Call to /memberships API failed: ${errorMessage}`);
     throw new Error("Call to /memberships API failed");
   }
+}
+
+export async function checkMembershipRole({role}:{role: "curator" | "validator"}) {
+  const pubkey = getEphemeralPubkey();
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+      headers.Authorization = `Bearer ${pubkey}`;
+
+    const response = await fetch(`/api/memberships/${role}`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error(`Call to /membershops/${role} API failed: ${errorMessage}`);
+      throw new Error("Call to /memberships API failed");
+    }
+
+    const {success, hasRole} = await response.json();
+
+    return hasRole;
+}
+
+export async function claimValidatorRole() {
+  console.log("claiming validator role")
+  const pubkey = getEphemeralPubkey();
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+    headers.Authorization = `Bearer ${pubkey}`;
+
+  const response = await fetch(`/api/claim-validator`, {
+    method: "POST",
+    headers,
+  });
+
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    console.error(`Call to /claim-validator/ API failed: ${errorMessage}`);
+    throw new Error("Call to /claim-validator API failed");
+  }
+
+  const {success, hasRole} = await response.json();
+
+  return hasRole;
 }
 
 export async function createMessage(signedMessage: SignedMessage) {
