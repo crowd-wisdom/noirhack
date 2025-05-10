@@ -105,8 +105,8 @@ const postTweet = async (message: Message): Promise<boolean> => {
     const companyText = message.anonGroupId in twitterHandles
       ? `@${twitterHandles[companyDomain]} ${companyDomainCleaned}`
       : companyDomainCleaned;
-    const prefix = `Someone from ${companyText} said:\n\n`;
-    const suffix = `\n\nVerify: https://stealthnote.xyz/messages/${message.id}`;
+    const prefix = `Someone claim for misinformation:\n\n`;
+    const suffix = `\n\nVerify: https://crowdwisdom.xyz/messages/${message.id}`;
     const maxTweetLength = 280;
     const maxContentLength = maxTweetLength - prefix.length - suffix.length;
 
