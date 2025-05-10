@@ -1,7 +1,33 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
-import { verifyClaimSignature, verifyMessageSignature } from "../../../lib/ephemeral-key";
+import { verifyClaimSignature } from "../../../lib/ephemeral-key";
 import { SignedClaim } from "../../../lib/types";
+
+interface ClaimData {
+  id: string;
+  group_id: string;
+  group_provider: string;
+  curator_pubkey: string;
+  title: string;
+  description: string;
+  source_url: string | null;
+  created_at: string;
+  signature: string;
+  internal: boolean;
+  likes: number;
+  status: string;
+  pubkey_expiry: string;
+  curator: {
+    pubkey: string;
+    role: string;
+  };
+  votes: {
+    count: number;
+  };
+  evidence_files: {
+    count: number;
+  };
+}
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -17,7 +43,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "GET") {
-    console.log("claims on index")
+    console.log("GET /api/claims", req.query);
     fetchClaims(req, res);
   } else if (req.method === "POST") {
     postClaim(req, res);
@@ -109,6 +135,8 @@ export async function fetchClaims(
 ) {
   try {
     const { sortBy, status } = request.query;
+    console.log("Fetching claims with params:", { sortBy, status });
+    
     let query = supabase
       .from("claims")
       .select(`
@@ -131,10 +159,12 @@ export async function fetchClaims(
     const { data, error } = await query;
  
     if (error) {
+      console.error("Supabase error:", error);
       throw error;
     }
 
-    const mappedData = data.map((claim: any) => ({
+    console.log(`Found ${data.length} claims`);
+    const mappedData = data.map((claim: ClaimData) => ({
       id: claim.id,
       anonGroupId: claim.group_id,
       anonGroupProvider: claim.group_provider,

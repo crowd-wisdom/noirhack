@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { fetchClaim, fetchClaims, closeClaims } from "../lib/api";
-import ClaimCard from "./claim-card";
 import { SignedClaimWithProof } from "../lib/types";
+import { fetchClaims, closeClaims } from "../lib/api";
+import ClaimCard from "./claim-card";
 import ClaimForm from "./claim-form";
 
 const CLAIMS_PER_PAGE = 30;
@@ -36,22 +36,6 @@ const ClaimList: React.FC<ClaimListProps> = ({
   const observer = useRef<IntersectionObserver | null>(null);
   const claimListRef = useRef<HTMLDivElement>(null);
 
-  // Ref to keep track of the last message element (to load more messages on scroll)
-  const lastClaimElementRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadClaims(claims[claims.length - 1]?.timestamp.getTime());
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [claims, loading, hasMore]
-  );
-
   // Cached helpers
   const loadClaims = useCallback(
     async (beforeTimestamp: number | null = null) => {
@@ -67,15 +51,16 @@ const ClaimList: React.FC<ClaimListProps> = ({
           groupId,
         });
 
-        const existingClaimsIds: Record<string, boolean> = {};
-        claims.forEach((m) => {
-          existingClaimsIds[m.id!] = true;
+        setClaims((prevClaims) => {
+          const existingClaimsIds: Record<string, boolean> = {};
+          prevClaims.forEach((m) => {
+            existingClaimsIds[m.id!] = true;
+          });
+          const cleanedClaims = fetchedClaims.filter(
+            (c: SignedClaimWithProof) => !existingClaimsIds[c.id!]
+          );
+          return [...prevClaims, ...cleanedClaims];
         });
-        const cleanedClaims = fetchedClaims.filter(
-          (c: SignedClaimWithProof) => !existingClaimsIds[c.id!]
-        );
-        console.log("cleaned claims", cleanedClaims)
-        setClaims((prevClaims) => [...prevClaims, ...cleanedClaims]);
         setHasMore(fetchedClaims.length === CLAIMS_PER_PAGE);
       } catch (error) {
         setError((error as Error)?.message);
@@ -83,8 +68,22 @@ const ClaimList: React.FC<ClaimListProps> = ({
         setLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [groupId, isInternal]
+    [groupId, isInternal, status]
+  );
+
+  // Ref to keep track of the last message element (to load more messages on scroll)
+  const lastClaimElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          loadClaims(claims[claims.length - 1]?.timestamp.getTime());
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore, loadClaims, claims]
   );
 
   const checkForNewClaims = useCallback(async () => {
@@ -119,14 +118,17 @@ const ClaimList: React.FC<ClaimListProps> = ({
     } catch (error) {
       console.error("Error checking for new claims:", error);
     }
-  }, [groupId, claims, status])
+  }, []);
 
   // Effects
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
+    let isComponentMounted = true;
 
     const startPolling = () => {
       intervalId = setInterval(() => {
+        if (!isComponentMounted) return;
+        
         if (claimListRef.current && claimListRef.current.scrollTop === 0) {
           checkForNewClaims();
         }
@@ -137,13 +139,16 @@ const ClaimList: React.FC<ClaimListProps> = ({
     startPolling();
 
     return () => {
+      isComponentMounted = false;
       if (intervalId) clearInterval(intervalId);
     };
-  }, [pollInterval, checkForNewClaims]);
+  }, [pollInterval, checkForNewClaims, checkForClosedClaims]);
 
+  // Initial load
   useEffect(() => {
     loadClaims();
-  }, [loadClaims]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   // Handlers
   function onNewClaimSubmit(signedClaim: SignedClaimWithProof) {

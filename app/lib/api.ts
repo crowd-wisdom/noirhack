@@ -105,7 +105,7 @@ export async function checkMembershipRole({role}:{role: "curator" | "validator"}
       throw new Error("Call to /memberships API failed");
     }
 
-    const {success, hasRole} = await response.json();
+    const { hasRole } = await response.json();
 
     return hasRole;
 }
@@ -130,7 +130,7 @@ export async function claimValidatorRole() {
     throw new Error("Call to /claim-validator API failed");
   }
 
-  const {success, hasRole} = await response.json();
+  const { hasRole } = await response.json();
 
   return hasRole;
 }
@@ -233,8 +233,7 @@ export async function checkVoteNullifier(claimId: string) {
       throw new Error("Call to /voted API failed");
     }
 
-    const {voted, nullifier} = await response.json();
-    console.log("nullifier")
+    const { voted } = await response.json();
     return voted;
 }
 

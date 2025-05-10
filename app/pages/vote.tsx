@@ -2,19 +2,10 @@
 
 import React from "react";
 import Head from "next/head";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { useLocalStorage } from "@uidotdev/usehooks";
 import ClaimList from "../components/claim-list";
-import { ProviderSlugKeyMap } from "../lib/providers";
 
 // See messages from one anon group
 export default function GroupPage() {
-  const [currentGroupId] = useLocalStorage<string | null>(
-    "currentGroupId",
-    null
-  );
-
   return (
     <>
       <Head>
