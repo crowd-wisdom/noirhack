@@ -36,6 +36,7 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal, vote }) => {
   const [verificationStatus, setVerificationStatus] =
     useState<VerificationStatus>("idle");
   const [hasVoted, setHasVoted] = useState<boolean>(false);
+  const [isVoting, setIsVoting] = useState<boolean>(false);
 
   const isGroupPage = window.location.pathname === `/${provider.getSlug()}/${claim.anonGroupId}`;
   const isClaimPage = window.location.pathname === `/claims/${claim.id}`;
@@ -210,12 +211,28 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal, vote }) => {
     );
   }
 
-  function upvote() {
-    voteOnClaim(claim.id, true)
+  async function upvote() {
+    try {
+      setIsVoting(true);
+      await voteOnClaim(claim.id, true);
+      setHasVoted(true);
+    } catch (error) {
+      console.error("Error voting:", error);
+    } finally {
+      setIsVoting(false);
+    }
   }
 
-  function downvote() {
-    voteOnClaim(claim.id, false)
+  async function downvote() {
+    try {
+      setIsVoting(true);
+      await voteOnClaim(claim.id, false);
+      setHasVoted(true);
+    } catch (error) {
+      console.error("Error voting:", error);
+    } finally {
+      setIsVoting(false);
+    }
   }
   // Render
   return (
@@ -255,18 +272,31 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal, vote }) => {
         </div>
         {vote && !hasVoted && (
           <div className="vote-buttons">
-            <button className="vote-button upvote" onClick={() => upvote()}>
-              <IonIcon name="arrow-up-outline" />
-            </button>
-            <button className="vote-button downvote" onClick={()=> downvote()}>
-              <IonIcon name="arrow-down-outline" />
-            </button>
+            {isVoting ? (
+              <div className="vote-buttons-loading">
+                <span className="spinner-icon small"></span>
+              </div>
+            ) : (
+              <>
+                <button 
+                  className="vote-button upvote" 
+                  onClick={() => upvote()}
+                >
+                  <IonIcon name="arrow-up-outline" />
+                </button>
+                <button 
+                  className="vote-button downvote" 
+                  onClick={() => downvote()}
+                >
+                  <IonIcon name="arrow-down-outline" />
+                </button>
+              </>
+            )}
           </div>
         )}
         {hasVoted && (
           <div className="message-card-header-right">
             {renderVoteStatusBadge()}
-            {renderVoteVerificationStatus()}
           </div>
         )}
       </div>

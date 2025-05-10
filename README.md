@@ -15,12 +15,12 @@ CrowdWisdom is inspired by [StealthNote](https://stealthnote.xyz), particularly 
 - **Anonymous Content Flagging**: Users can submit reports about potentially misleading content without revealing their identity.
 - **Anonymous Voting**: Validators can upvote or downvote submissions using a lightweight, zero-knowledge voting system built with Noir.
 - **ZK-based Identity Verification**: Leverages `stealthnote-jwt` and `noir-jwt` for zero-knowledge proofs of JWT claims, ensuring only eligible (e.g., workspace-authenticated) users participate—without revealing their identity.
-- **Semaphore-based Privacy Layer**: Adds an additional anonymity layer using `semaphore-noir` for both curators and validators. Users can prove their membership in curators and validators groups, and send messages (extending from claims to votes) all without revealing their personal identity.
+- **Semaphore-based Privacy Layer**: Adds an additional anonymity layer using `semaphore-noir` for both curators and validators. Users can prove their membership in curators and validators groups, and send messages (extending from claims to votes) all without revealing their personal identity. (https://github.com/hashcloak/semaphore-noir)
 - **Future Plans**: A browser extension for in-context content reporting and a UI overhaul for a more intuitive experience.
 
 ---
 
-## 🧱 Architecture Overview
+##  Architecture Overview
 
 CrowdWisdom is built from the following components:
 
@@ -38,7 +38,7 @@ CrowdWisdom is built from the following components:
 
 ## 🚧 Roadmap
 
-- ✅ MVP Web App
+- MVP Web App
 - 🛠️ UI/UX Redesign
 - 🧩 **Browser Extension** for contextual submissions:
   - Creating identities via Semaphore
@@ -48,6 +48,37 @@ CrowdWisdom is built from the following components:
   - Allowing Validators to cast votes on open claims
   - Displaying completed claims and Curator notes while browsing the web
 
+---
+
+## Getting Started
+
+### Prerequisites
+- [Bun](https://bun.sh) installed on your system
+- [NEAR CLI](https://docs.near.org/docs/develop/basics/near-cli) installed for contract deployment
+- [Make](https://www.gnu.org/software/make/) installed for contract building
+
+### Quick Start
+
+1. Clone the repository:
+```sh
+git clone https://github.com/crowd-wisdom/noirhack
+cd noirhack/app
+```
+
+2. Install dependencies:
+```sh
+bun install
+```
+
+4. Copy .env.example & set env vars:
+```sh
+cp .env.example .env
+```
+
+4. Start the development server:
+```sh
+bun run dev
+```
 ---
 
 ## 🤝 Contributing

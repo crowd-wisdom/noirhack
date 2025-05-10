@@ -75,7 +75,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <aside className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
           <div className="logo">
             <Link href="/">
-              <Image src={logo} alt="CrowdWisdom" width={180} height={50} />
+              <Image src={logo} alt="CrowdWisdom" width={200} height={50} />
             </Link>
           </div>
           <nav className="sidebar-nav">
