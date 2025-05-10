@@ -65,6 +65,9 @@ async function createClaimVote(req: NextApiRequest, res: NextApiResponse) {
       throw new Error("Cannot vote on inactive or closed claims");
     }
     console.log("claimid", claimId, "voterPubkey", voterPubkey, "vote", vote)
+
+    // Todo: create nullifier 
+
     const { error } = await supabase.from("claim_votes").insert([
       {
         id: crypto.randomUUID(),
