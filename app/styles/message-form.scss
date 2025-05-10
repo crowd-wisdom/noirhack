@@ -4,6 +4,45 @@
   border-radius: 5px;
   margin-bottom: 1.5rem;
   overflow: hidden;
+  padding: 1rem;
+
+  .form-group {
+    margin-bottom: 1rem;
+    position: relative;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--shade-700);
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--shade-300);
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary-500);
+        box-shadow: 0 0 0 2px var(--primary-100);
+      }
+
+      &:disabled {
+        background-color: var(--shade-100);
+        cursor: not-allowed;
+        border-color: var(--shade-200);
+      }
+
+      &::placeholder {
+        color: var(--shade-400);
+      }
+    }
+  }
 
   textarea {
     width: 100%;

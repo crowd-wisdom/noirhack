@@ -60,7 +60,8 @@ export async function postClaim(
       .eq("pubkey", signedClaim.ephemeralPubkey.toString())
       .single();
 
-    if (membershipError || !membership || membership.role !== "curator") {
+    const canCurate = membership && (membership.role == "curator" || membership.role == "validator");
+    if (membershipError || !membership || !canCurate) {
       throw new Error("Only curators can create claims");
     }
 
@@ -133,7 +134,6 @@ export async function fetchClaims(
       throw error;
     }
 
-    // Map database column names to TypeScript interface properties
     const mappedData = data.map((claim: any) => ({
       id: claim.id,
       anonGroupId: claim.group_id,

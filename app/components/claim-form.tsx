@@ -17,11 +17,11 @@ type ClaimFormProps = {
 };
 
 const prompts = (companyName: string) => [
-  `What’s the tea at ${companyName}?`,
-  `What’s going unsaid at ${companyName}?`,
-  `What’s happening behind the scenes at ${companyName}?`,
-  `What would you say if you weren’t being watched?`,
-  `What’s the thing nobody’s admitting at ${companyName}?`,
+  `What's the tea at ${companyName}?`,
+  `What's going unsaid at ${companyName}?`,
+  `What's happening behind the scenes at ${companyName}?`,
+  `What would you say if you weren't being watched?`,
+  `What's the thing nobody's admitting at ${companyName}?`,
 ];
 const randomPromptIndex = Math.floor(Math.random() * prompts("").length);
 
@@ -124,13 +124,17 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
 
   return (
     <div className="message-form">
-      <div style={{ position: "relative" }}>
-        <textarea
+      <div className="form-group">
+        <label htmlFor="title">Title</label>
+        <input
+          id="title"
+          type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={100}
-          placeholder={"Claim title"}
+          placeholder="Enter claim title"
           disabled={isTextAreaDisabled}
+          className="form-input"
         />
         {!isTextAreaDisabled && title.length > 0 && (
           <span className="message-form-character-count">
@@ -138,13 +142,17 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
           </span>
         )}
       </div>
-      <div style={{ position: "relative" }}>
+
+      <div className="form-group">
+        <label htmlFor="description">Description</label>
         <textarea
+          id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder={"Claim description"}
+          placeholder="Enter claim description"
           maxLength={280}
           disabled={isTextAreaDisabled}
+          className="form-input"
         />
         {!isTextAreaDisabled && description.length > 0 && (
           <span className="message-form-character-count">
@@ -152,13 +160,18 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
           </span>
         )}
       </div>
-      <div style={{ position: "relative" }}>
-        <textarea
+
+      <div className="form-group">
+        <label htmlFor="sourceUrl">Source URL</label>
+        <input
+          id="sourceUrl"
+          type="url"
           value={sourceUrl}
           onChange={(e) => setSourceUrl(e.target.value)}
+          placeholder="Enter source URL"
           maxLength={280}
-          placeholder={"Claim source url"}
           disabled={isTextAreaDisabled}
+          className="form-input"
         />
         {!isTextAreaDisabled && sourceUrl.length > 0 && (
           <span className="message-form-character-count">
@@ -170,7 +183,7 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
       <div className="message-form-footer">
         <div style={{ display: "flex", alignItems: "center" }}>
           <span className="message-form-footer-message">
-            {status ? status : `Posting as "${senderName}"`}
+            {status ? status : `Posting a claim for misinformation as "${senderName}"`}
           </span>
 
           {isRegistered && (
