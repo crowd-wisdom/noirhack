@@ -75,13 +75,6 @@ We plan to expand validator access by introducing a **claim-based onboarding pro
 
 ## Getting Started
 
-### Prerequisites
-- [Bun](https://bun.sh) installed on your system
-- [NEAR CLI](https://docs.near.org/docs/develop/basics/near-cli) installed for contract deployment
-- [Make](https://www.gnu.org/software/make/) installed for contract building
-
-### Quick Start
-
 1. Clone the repository:
 ```sh
 git clone https://github.com/crowd-wisdom/noirhack
