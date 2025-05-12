@@ -13,7 +13,7 @@ class NoirInstance {
     constructor(circuitEspecification : CompiledCircuit,name : string) {
         this.circuitEspecification = circuitEspecification;
         this.noir_instance = new Noir(circuitEspecification as CompiledCircuit)
-        this.noir_backend = new UltraHonkBackend(circuit_simple_vote.bytecode)
+        this.noir_backend = new UltraHonkBackend(circuit_simple_vote.bytecode, { threads: 8, crsPath: '/tmp/.bb-crs' })
         this.name = name
     }
 

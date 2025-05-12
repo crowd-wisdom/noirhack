@@ -56,7 +56,7 @@ export const JWTCircuitHelper = {
 
     const { Noir, UltraHonkBackend } = await initProver();
     const circuitArtifact = await import(`../../assets/jwt/circuit.json`);
-    const backend = new UltraHonkBackend(circuitArtifact.bytecode, { threads: 8 });
+    const backend = new UltraHonkBackend(circuitArtifact.bytecode, { threads: 8, crsPath: '/tmp/.bb-crs' });
     const noir = new Noir(circuitArtifact as CompiledCircuit);
 
     // Generate witness and prove
