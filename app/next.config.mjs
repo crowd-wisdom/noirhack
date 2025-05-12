@@ -19,6 +19,14 @@ const nextConfig = {
         './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
         './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
       ],
+      '/api/claim-votes': [
+        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
+        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
+      ],
+      '/api/claim-validator': [
+        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
+        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
+      ],
     },
   },
   reactStrictMode: false,
@@ -38,7 +46,7 @@ const nextConfig = {
     ],
   },
   env: {
-    NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
   },
   webpack: (config) => {
     config.experiments = {
