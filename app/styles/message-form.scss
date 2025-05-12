@@ -63,6 +63,37 @@
       background-color: var(--shade-100);
     }
   }
+
+  .message-form-submit {
+    background-color: var(--primary-900);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-width: 70px;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    &:hover {
+      background-color: var(--primary-950);
+    }
+
+    &:disabled {
+      background-color: var(--shade-400);
+      cursor: not-allowed;
+    }
+
+    .spinner-icon {
+      border-color: rgba(255, 255, 255, 0.3);
+      border-left-color: white;
+    }
+  }
 }
 
 .message-form-footer {

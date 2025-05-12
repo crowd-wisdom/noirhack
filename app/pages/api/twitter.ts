@@ -1,8 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { TwitterApi } from 'twitter-api-v2';
 import { createClient } from '@supabase/supabase-js';
-import twitterHandles from '../../assets/twitter-handles.json';
-import { Message } from '../../lib/types';
+
+interface Message {
+  id: string;
+  text: string;
+  anonGroupId: string;
+}
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -99,12 +103,7 @@ const markMessageAsTweeted = async (messageId: string): Promise<void> => {
  */
 const postTweet = async (message: Message): Promise<boolean> => {
   try {
-    const companyDomain = message.anonGroupId as keyof typeof twitterHandles;
-    const companyDomainCleaned = '-' + companyDomain;
-    
-    const companyText = message.anonGroupId in twitterHandles
-      ? `@${twitterHandles[companyDomain]} ${companyDomainCleaned}`
-      : companyDomainCleaned;
+      
     const prefix = `Someone claim for misinformation:\n\n`;
     const suffix = `\n\nVerify: https://crowdwisdom.xyz/messages/${message.id}`;
     const maxTweetLength = 280;

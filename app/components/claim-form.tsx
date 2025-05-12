@@ -2,28 +2,17 @@ import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import IonIcon from "@reacticons/ionicons";
-import { Claim, LocalStorageKeys, SignedClaim, SignedClaimWithProof } from "../lib/types";
+import { Claim, LocalStorageKeys, SignedClaimWithProof } from "../lib/types";
 import { getEphemeralPubkey } from "../lib/ephemeral-key";
 import { generateKeyPairAndRegister, postClaim } from "../lib/core";
 import { generateNameFromPubkey } from "../lib/utils";
 import { Providers } from "../lib/providers";
 import SignWithGoogleButton from "./siwg";
-import { Identity } from "@semaphore-protocol/identity";
-// import SignInWithMicrosoftButton from "./siwm";
 
 type ClaimFormProps = {
   isInternal?: boolean;
   onSubmit: (message: SignedClaimWithProof) => void;
 };
-
-const prompts = (companyName: string) => [
-  `What's the tea at ${companyName}?`,
-  `What's going unsaid at ${companyName}?`,
-  `What's happening behind the scenes at ${companyName}?`,
-  `What would you say if you weren't being watched?`,
-  `What's the thing nobody's admitting at ${companyName}?`,
-];
-const randomPromptIndex = Math.floor(Math.random() * prompts("").length);
 
 const ClaimForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
   const [currentGroupId, setCurrentGroupId] = useLocalStorage<string | null>(
@@ -63,7 +52,7 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
       setStatus(`Generating cryptographic proof of your membership without revealing your identity.
         This will take about 20 seconds...`);
 
-      const { anonGroup, semaphoreIdentity } = await generateKeyPairAndRegister(providerName);
+      const { anonGroup } = await generateKeyPairAndRegister(providerName);
 
       setCurrentGroupId(anonGroup.id);
       setCurrentProvider(providerName);
@@ -119,8 +108,6 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
   }
 
   const isTextAreaDisabled = !!isRegistering || isPosting || !isRegistered;
-
-  const randomPrompt = prompts(currentGroupId ?? "your company")[randomPromptIndex]
 
   return (
     <div className="message-form">
@@ -190,8 +177,8 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
             <div className="message-form-footer-buttons">
               <button
                 title={
-                  "Multiple messages sent by one identity can be linked." +
-                  " Refresh your identity by generating a new proof."
+                  "Multiple messages sent by one identity can be linked. " +
+                  "Refresh your identity by generating a new proof."
                 }
                 onClick={() => handleSignIn("google-oauth")}
                 tabIndex={-1}
@@ -199,48 +186,45 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ isInternal, onSubmit }) => {
                 {isRegistering ? (
                   <span className="spinner-icon" />
                 ) : (
-                  <span className="message-form-refresh-icon">⟳</span>
+                  <IonIcon name="refresh-outline" />
                 )}
               </button>
               <button
-                title={
-                  "Delete your identity and start over."
-                }
-                onClick={() => resetIdentity()}
+                title="Reset your identity"
+                onClick={resetIdentity}
                 tabIndex={-1}
               >
-                <span className="message-form-reset-icon"><IonIcon name="close-outline" /></span>
+                <IonIcon name="log-out-outline" />
               </button>
             </div>
           )}
         </div>
 
-        {isRegistered && (
-          <>
-            <button
-              className="message-form-post-button"
-              onClick={onSubmitClaim}
-              disabled={!!isRegistering || isPosting || title.length === 0 || description.length === 0 || sourceUrl.length == 0}
-            >
-              {isPosting ? <span className="spinner-icon small" /> : "Post"}
-            </button>
-          </>
-        )}
-
         {!isRegistered && (
-          <div className="message-form-oauth-buttons">
+          <div className="message-form-footer-buttons">
             <SignWithGoogleButton
               onClick={() => handleSignIn("google-oauth")}
               isLoading={isRegistering === "google-oauth"}
               disabled={!!isRegistering}
             />
-            {/* <SignInWithMicrosoftButton
-              onClick={() => handleSignIn("microsoft-oauth")}
-              isLoading={isRegistering === "microsoft-oauth"}
-              disabled={!!isRegistering}
-            /> */}
           </div>
         )}
+
+        <button
+          type="submit"
+          onClick={onSubmitClaim}
+          disabled={isTextAreaDisabled}
+          className="message-form-submit"
+        >
+          {isPosting ? (
+            <span className="spinner-icon" />
+          ) : (
+            <>
+              <IonIcon name="send-outline" />
+              <span>Post</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

@@ -36,8 +36,6 @@ CrowdWisdom is built from the following components:
 
 ---
 
----
-
 ## ✅ Becoming a Validator
 
 To maintain integrity and prevent spam or manipulation, **CrowdWisdom validators** are currently limited to members of pre-approved organizations.
@@ -53,6 +51,7 @@ Validators must sign in with Google using a domain from a whitelisted organizati
 
 If your Google Workspace account belongs to one of these domains, you will be able to participate as a validator after signing in.
 
+---
 ### 🔜 Future Plans
 
 We plan to expand validator access by introducing a **claim-based onboarding process**, allowing new trusted organizations and individuals to request inclusion. This process will maintain validator quality while enabling community growth and decentralization.

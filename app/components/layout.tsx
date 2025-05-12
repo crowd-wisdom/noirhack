@@ -7,32 +7,22 @@ import dynamic from "next/dynamic";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import IonIcon from "@reacticons/ionicons";
 import { LocalStorageKeys } from "../lib/types";
-import { Providers } from "../lib/providers";
 import logo from "@/assets/logo.png";
 import { checkMembershipRole, claimValidatorRole } from "../lib/api";
-
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isDark, setIsDark] = useLocalStorage<boolean>(
     LocalStorageKeys.DarkMode,
     false
   );
-  const [currentGroupId] = useLocalStorage<string | null>(
-    LocalStorageKeys.CurrentGroupId,
+  const [currentGroupId, ] = useLocalStorage<string | null>(
+    "currentGroupId",
     null
   );
-  const [currentProvider] = useLocalStorage<string | null>(
-    LocalStorageKeys.CurrentProvider,
-    null
-  );
+
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [isValidator, setIsValidator] = React.useState(false);
- 
-  let slug = null;
-  if (currentProvider && currentGroupId) {
-    const provider = Providers[currentProvider];
-    slug = provider.getSlug();
-  }
+  const isRegistered = !!currentGroupId;
 
   // Check if user is a validator
   React.useEffect(() => {
@@ -53,7 +43,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   React.useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
-
 
   return (
     <>
@@ -88,7 +77,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 Validated Claims
               </Link>
 
-              {isValidator && (
+              {isRegistered && isValidator && (
                 <Link
                   onClick={() => setIsSidebarOpen(false)}
                   href={`/vote`}
@@ -97,7 +86,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                  Vote on Claims
                 </Link>
               )}
-              {!isValidator && (
+              {isRegistered&& !isValidator && (
                 <Link
                 onClick={async () => {
                     await claimValidatorRole(); // Claim the role

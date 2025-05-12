@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
-import { Providers } from "../../lib/providers";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -54,13 +53,12 @@ async function checkVoteNullifier(req: NextApiRequest, res: NextApiResponse) {
           });
         }
         
-        const { data: nullifier, error: whitelistError } = await supabase
+        const { data: nullifier } = await supabase
           .from("claim_votes")
           .select("vote_nullifier")
           .eq("claim_id", claimId)
           .eq("voter_pubkey", pubkey)
           .single();
-
 
         return res.status(200).json({
           voted: nullifier !== null,

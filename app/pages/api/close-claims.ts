@@ -10,6 +10,17 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+interface Vote {
+  vote: "up" | "down";
+}
+
+interface ExpiredClaim {
+  id: string;
+  status: string;
+  vote_deadline: string;
+  votes: Vote[];
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -47,11 +58,11 @@ export default async function handler(
     };
 
     // Process each expired claim
-    for (const claim of expiredClaims) {
+    for (const claim of (expiredClaims as ExpiredClaim[])) {
       try {
         // Count up and down votes
-        const upVotes = claim.votes.filter((v: any) => v.vote === "up").length;
-        const downVotes = claim.votes.filter((v: any) => v.vote === "down").length;
+        const upVotes = claim.votes.filter((v: Vote) => v.vote === "up").length;
+        const downVotes = claim.votes.filter((v: Vote) => v.vote === "down").length;
         
         // Determine new status based on vote count
         // If more upvotes than downvotes, close as successful, otherwise reject

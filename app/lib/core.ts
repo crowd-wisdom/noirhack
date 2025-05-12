@@ -1,4 +1,4 @@
-import type { Claim, Message, SignedClaim, SignedClaimWithProof, SignedMessage, SignedMessageWithProof } from "./types";
+import type { Claim, SignedClaim, SignedClaimWithProof, SignedMessageWithProof } from "./types";
 import { createClaim, createMembership } from "./api";
 import { generateEphemeralKey, verifyMessageSignature, signClaim, verifyClaimSignature } from "./ephemeral-key";
 import { initProver } from "./lazy-modules";
@@ -35,7 +35,13 @@ export async function generateKeyPairAndRegister(
   });
   
   const proofSemaphoreGroup = addIdentityToCuratorsGroup();
-  return { anonGroup, ephemeralPubkey: ephemeralKey.publicKey.toString(), proofArgs, semaphoreIdentity, proofSemaphoreGroup };
+  return {
+    anonGroup,
+    ephemeralPubkey: ephemeralKey.publicKey.toString(),
+    proofArgs,
+    semaphoreIdentity,
+    proofSemaphoreGroup,
+  };
 }
 
 export async function postClaim(claim: Claim) {
@@ -60,8 +66,8 @@ export async function verifyMessage(message: SignedMessageWithProof) {
   try {
     if (new Date(message.timestamp).getTime() < new Date("2025-02-23").getTime()) {
       throw new Error(
-        "Messages generated before 2025-02-23 are not verifiable due to major changes in the circuit. " +
-        "Future versions of this app will be backward compatible."
+        `Messages generated before 2025-02-23 are not verifiable due to major changes in the circuit. \
+Future versions of this app will be backward compatible.`
       );
     }
 

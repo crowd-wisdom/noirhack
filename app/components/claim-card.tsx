@@ -8,7 +8,7 @@ import { generateNameFromPubkey } from "../lib/utils";
 import { setClaimLiked, isClaimLiked } from "../lib/store";
 import { checkVoteNullifier, fetchClaim, toggleLike, voteOnClaim } from "../lib/api";
 import { hasEphemeralKey } from "../lib/ephemeral-key";
-import { verifyClaim, verifyMessage } from "../lib/core";
+import { verifyClaim } from "../lib/core";
 import { Providers } from "../lib/providers";
 
 interface ClaimCardProps {
@@ -21,15 +21,7 @@ type VerificationStatus = "idle" | "verifying" | "valid" | "invalid" | "error";
 
 const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal, vote }) => {
   const timeAgo = useRef(new TimeAgo("en-US")).current;
-
-  const provider = Providers[claim.anonGroupProvider];
-  console.log("provider?", provider)
-  if (!provider) {
-    console.error(`Provider not found for ${claim.anonGroupProvider}`);
-    return <div className="message-card">Invalid provider</div>;
-  }
-  const anonGroup = provider.getAnonGroup(claim.anonGroupId);
-
+  
   // States
   const [likeCount, setLikeCount] = useState(claim.likes || 0);
   const [isLiked, setIsLiked] = useState(isClaimLiked(claim.id));
@@ -37,9 +29,6 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal, vote }) => {
     useState<VerificationStatus>("idle");
   const [hasVoted, setHasVoted] = useState<boolean>(false);
   const [isVoting, setIsVoting] = useState<boolean>(false);
-
-  const isGroupPage = window.location.pathname === `/${provider.getSlug()}/${claim.anonGroupId}`;
-  const isClaimPage = window.location.pathname === `/claims/${claim.id}`;
 
   // Check vote status when component mounts or when vote prop changes
   React.useEffect(() => {
@@ -52,6 +41,15 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal, vote }) => {
         });
     }
   }, [vote, claim.id]);
+
+  const provider = Providers[claim.anonGroupProvider];
+  if (!provider) {
+    console.error(`Provider not found for ${claim.anonGroupProvider}`);
+    return <div className="message-card">Invalid provider</div>;
+  }
+  const anonGroup = provider.getAnonGroup(claim.anonGroupId);
+
+  const isGroupPage = window.location.pathname === `/${provider.getSlug()}/${claim.anonGroupId}`;
 
   // Handlers
   async function onLikeClick() {
@@ -130,39 +128,6 @@ const ClaimCard: React.FC<ClaimCardProps> = ({ claim, isInternal, vote }) => {
   }
 
   function renderVerificationStatus() {
-    if (verificationStatus === "idle") {
-      return (
-        <span className="message-card-verify-button" onClick={onVerifyClick}>
-          Verify
-        </span>
-      );
-    }
-
-    return (
-      <span className={`message-card-verify-status ${verificationStatus}`}>
-        {verificationStatus === "verifying" && (
-          <span className="message-card-verify-icon spinner-icon small"></span>
-        )}
-        {verificationStatus === "valid" && (
-          <span className="message-card-verify-icon valid">
-            <IonIcon name="checkmark-outline" />
-          </span>
-        )}
-        {verificationStatus === "invalid" && (
-          <span className="message-card-verify-icon invalid">
-            <IonIcon name="close-outline" />
-          </span>
-        )}
-        {verificationStatus === "error" && (
-          <span className="message-card-verify-icon error">
-            <IonIcon name="alert-outline" />
-          </span>
-        )}
-      </span>
-    );
-  }
-  // TODO: manage vote verification status
-  function renderVoteVerificationStatus() {
     if (verificationStatus === "idle") {
       return (
         <span className="message-card-verify-button" onClick={onVerifyClick}>

@@ -7,19 +7,15 @@ dotenv.config();
 const nextConfig = {
   experimental: {
     outputFileTracingIncludes: {
-      '/api/messages': [
-        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
-        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
-      ],
-      '/api/messages/': [
-        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
-        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
-      ],
       '/api/claims': [
         './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
         './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
       ],
       '/api/claim/': [
+        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
+        './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
+      ],
+      '/api/memberships': [
         './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/**/*',
         './node_modules/@aztec/bb.js/dest/node/barretenberg_wasm/barretenberg_wasm_thread/factory/node/thread.worker.js'
       ],
@@ -50,6 +46,13 @@ const nextConfig = {
       syncWebAssembly: true,
       layers: true,
     };
+    
+    // Add fallback for fs module
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+    };
+    
     return config
   },
   // async headers() {
