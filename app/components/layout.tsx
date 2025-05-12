@@ -9,27 +9,19 @@ import IonIcon from "@reacticons/ionicons";
 import { LocalStorageKeys } from "../lib/types";
 import logo from "@/assets/logo.png";
 import { checkMembershipRole, claimValidatorRole } from "../lib/api";
-import { Providers } from "@/lib/providers";
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isDark, setIsDark] = useLocalStorage<boolean>(
     LocalStorageKeys.DarkMode,
     false
   );
-  const [currentGroupId, setCurrentGroupId] = useLocalStorage<string | null>(
+  const [currentGroupId, ] = useLocalStorage<string | null>(
     "currentGroupId",
     null
   );
-  const [currentProvider, setCurrentProvider] = useLocalStorage<string | null>(
-    LocalStorageKeys.CurrentProvider,
-    null
-  );
+
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [isValidator, setIsValidator] = React.useState(false);
-  const provider = currentProvider ? Providers[currentProvider] : null;
-  const anonGroup =
-    provider && currentGroupId ? provider.getAnonGroup(currentGroupId) : null;
-
   const isRegistered = !!currentGroupId;
 
   // Check if user is a validator

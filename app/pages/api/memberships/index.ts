@@ -75,6 +75,6 @@ async function createMembership(req: NextApiRequest, res: NextApiResponse) {
     console.error("Error registering membership:", error);
     res
       .status(500)
-      .json({ success: false, message: "Error registering membership" });
+      .json({ success: false, message: "Error registering membership: " + JSON.stringify(error) });
   }
 }
